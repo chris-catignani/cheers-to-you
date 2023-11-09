@@ -1,0 +1,13 @@
+.output {
+    margin-top: 25px;
+}
+
+.letters {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.letter {
+    padding: 0 20px 0 20px;
+}
