@@ -8,14 +8,14 @@ export const Event = ({onGenerateClick}) => {
 
     return (
         <div>
-            <label htmlFor='name'>Name:</label>
+            <label htmlFor='name'>Persons name:</label>
             <input
                 id='name'
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
             />
-            <label htmlFor='event'>Event:</label>
+            <label htmlFor='event'>Celebration name:</label>
             <input
                 id='event'
                 type="text"
