@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import './Output.css';
-import { selectBeerLetters, selectPersonsName, selectEventName } from './outputSlice';
+import { selectBeerLetters, selectEventName } from './outputSlice';
 
 export const Output = () => {
 

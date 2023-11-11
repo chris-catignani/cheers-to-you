@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { beers } from './beers.js'
+import beers from './data/beers.json';
 import { sample } from 'lodash-es';
 
 const initialState = {
