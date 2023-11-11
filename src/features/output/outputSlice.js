@@ -4,7 +4,6 @@ import { sample } from 'lodash-es';
 
 const initialState = {
     eventName: '',
-    personsName: '',
     beerDict: {},
     beerLetters: [],
 };
@@ -13,9 +12,6 @@ export const outputSlice = createSlice({
     name: 'output',
     initialState,
     reducers: {
-        setPersonsName: (state, action) => {
-            state.personsName = action.payload
-        },
         setEventName: (state, action) => {
             state.eventName = action.payload
         },
@@ -28,17 +24,12 @@ export const outputSlice = createSlice({
     }
 });
 
-export const { setPersonsName, setEventName, setBeerDict, setBeerLetters } = outputSlice.actions;
+export const { setEventName, setBeerDict, setBeerLetters } = outputSlice.actions;
 
-export const selectPersonsName = (state) => state.output.personsName;
 export const selectEventName = (state) => state.output.eventName;
-export const selectBeerLetters = (state) => state.output.beerLetters
+export const selectBeerLetters = (state) => state.output.beerLetters;
 
-export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
-    dispatch(setPersonsName(personsName));
-    dispatch(setEventName(eventName));
-
-    // TODO this can be done once on intial page load
+export const generateBeerDict = () => (dispatch, getState) => {
     const beerDict = {}
     beers.forEach(beer => {
         beer['beer_name_match_initial'].toLowerCase().split(',').forEach(letter => {
@@ -57,7 +48,12 @@ export const generateOutput = (personsName, eventName) => (dispatch, getState) =
     })
 
     dispatch(setBeerDict(beerDict))
+}
 
+export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
+    dispatch(setEventName(eventName));
+
+    const { beerDict } = getState().output;
     const beerLetters = [];
     for (var i = 0; i < personsName.length; i++) {
         const letter = personsName.charAt(i).toLowerCase();
@@ -68,7 +64,6 @@ export const generateOutput = (personsName, eventName) => (dispatch, getState) =
     }
 
     dispatch(setBeerLetters(beerLetters))
-
 };
 
 export default outputSlice.reducer;
