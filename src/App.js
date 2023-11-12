@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import './App.css';
 import { Event } from './features/event/Event';
 import { Output } from './features/output/Output';
 
@@ -10,6 +9,7 @@ import {
 } from './features/event/eventSlice';
 
 import { generateOutput, generateBeerDict } from './features/output/outputSlice';
+import { Box } from '@chakra-ui/react';
 
 export default function App() {
   const personsName = useSelector(selectPersonsName);
@@ -26,9 +26,9 @@ export default function App() {
   }
 
   return (
-    <div className="App">
+    <Box m='10'>
       <Event onGenerateClick={onGenerateClick}></Event>
       <Output></Output>
-    </div>
+    </Box>
   );
 }

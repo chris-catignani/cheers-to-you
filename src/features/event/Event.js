@@ -1,5 +1,6 @@
 
 import { useDispatch, useSelector } from 'react-redux';
+import { Container, Button, Input } from '@chakra-ui/react';
 
 import {
     selectPersonsName,
@@ -14,22 +15,18 @@ export const Event = ({onGenerateClick}) => {
     const dispatch = useDispatch();
 
     return (
-        <div>
-            <label htmlFor='name'>Persons name:</label>
-            <input
-                id='name'
-                type="text"
+        <Container maxW='md'>
+            <Input
+                placeholder='Persons Name'
                 value={personsName}
                 onChange={e => dispatch(setPersonsName(e.target.value))}
             />
-            <label htmlFor='event'>Celebration name:</label>
-            <input
-                id='event'
-                type="text"
+            <Input
+                placeholder='Event Name'
                 value={eventName}
                 onChange={e => dispatch(setEventName(e.target.value))}
             />
-            <button onClick={onGenerateClick}>Generate</button>
-        </div>
+            <Button width='full' onClick={onGenerateClick}>Generate</Button>
+        </Container>
     )
 }

@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
-import './Output.css';
 import { selectBeerLetters, selectEventName } from './outputSlice';
+import { Box, Flex, Image } from '@chakra-ui/react';
 
 export const Output = () => {
 
@@ -19,22 +19,22 @@ export const Output = () => {
     }
 
     return (
-        <div className='output'>
-            <div>{eventName}</div>
-            <div className='letters'>
+        <Box m='10'>
+            <Box textAlign='center'>{eventName}</Box>
+            <Flex justifyContent='center' gap='10' mt='5'>
                 {letters}
-            </div>
-        </div>
+            </Flex>
+        </Box>
     )
 }
 
 export const Letter = ({letter, beer}) => {
     return (
-        <div className='letter'>
-            <img src={beer['url']} alt={beer['name'] + beer['type']} />
-            <div className='brewary'>{beer['brewer_name']}</div>
-            <div className='beerName'>{beer['beer_name']}</div>
-            <div className='letterChar'>{letter}</div>
-        </div>
+        <Box textAlign='center' boxSize='150px'>
+            <Image src={beer['url']} alt={beer['name'] + beer['type']} boxSize='150px' fit='contain'/>
+            <Box>{beer['brewer_name']}</Box>
+            <Box>{beer['beer_name']}</Box>
+            <Box textTransform='uppercase'>{letter}</Box>
+        </Box>
     )
 }
