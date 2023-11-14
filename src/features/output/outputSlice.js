@@ -6,6 +6,7 @@ const initialState = {
     eventName: '',
     beerDict: {},
     beerLetters: [],
+    openedBeerIdx: -1,
 };
 
 export const outputSlice = createSlice({
@@ -18,16 +19,24 @@ export const outputSlice = createSlice({
         setBeerDict: (state, action) => {
             state.beerDict = action.payload
         },
+        setBeerLetterAtIndex: (state, action) => {
+            state.beerLetters[action.payload.idx].beer = action.payload.beer
+        },
         setBeerLetters: (state, action) => {
             state.beerLetters = action.payload
         },
+        setOpenBeerIdx: (state, action) => {
+            state.openedBeerIdx = action.payload
+        }
     }
 });
 
-export const { setEventName, setBeerDict, setBeerLetters } = outputSlice.actions;
+export const { setEventName, setBeerDict, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
+export const selectBeerDict = (state) => state.output.beerDict;
+export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
 
 export const generateBeerDict = () => (dispatch, getState) => {
     const beerDict = {}
