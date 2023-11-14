@@ -81,7 +81,7 @@ export const BeerModal = ({isOpen, onClose}) => {
 
 export const Letter = ({letter, beer, onClick}) => {
     return (
-        <Box textAlign='center' onClick={onClick}>
+        <Box textAlign='center' width='150px' onClick={onClick}>
             <Image src={beer['url']} alt={beer['name'] + beer['type']} boxSize='150px' fit='contain'/>
             <Box>{beer['brewer_name']}</Box>
             <Box>{beer['beer_name']}</Box>
