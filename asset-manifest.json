@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.js": "/cheers-to-you/static/js/main.a9150397.js",
+    "main.js": "/cheers-to-you/static/js/main.9217968c.js",
     "static/js/787.7f471ba5.chunk.js": "/cheers-to-you/static/js/787.7f471ba5.chunk.js",
     "index.html": "/cheers-to-you/index.html",
-    "main.a9150397.js.map": "/cheers-to-you/static/js/main.a9150397.js.map",
+    "main.9217968c.js.map": "/cheers-to-you/static/js/main.9217968c.js.map",
     "787.7f471ba5.chunk.js.map": "/cheers-to-you/static/js/787.7f471ba5.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.a9150397.js"
+    "static/js/main.9217968c.js"
   ]
 }
