@@ -10,17 +10,16 @@ export const Output = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
-    const letters = []
-    for (let i = 0; i < beerLetters.length; i++) {
-        letters.push(
+    const letters = beerLetters.map( ({letter, beer}, idx) => {
+        return (
             <Letter 
-                letter={beerLetters[i]['letter']}
-                beer={beerLetters[i]['beer']}
-                onClick={() => { dispatch(setOpenBeerIdx(i)); onOpen(); }}
-                key={`beer-letter-${i}`}>
+                letter={letter}
+                beer={beer}
+                onClick={() => { dispatch(setOpenBeerIdx(idx)); onOpen(); }}
+                key={`beer-letter-${idx}`}>
             </Letter>
         )
-    }
+    })
 
     return (
         <Box m='10'>
