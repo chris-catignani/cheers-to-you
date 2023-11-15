@@ -1,9 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { selectBeerDict, selectBeerLetters, selectEventName, selectGeneratedImage, selectOpenBeerIdx, setBeerLetterAtIndex, setGeneratedImage, setOpenBeerIdx } from './outputSlice';
-import { Box, Button, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { selectBeerDict, selectBeerLetters, selectDownloadGeneratedImageStatus, selectEventName, selectGeneratedImage, selectOpenBeerIdx, setBeerLetterAtIndex, setDownloadGeneratedImageStatus, setGeneratedImage, setOpenBeerIdx } from './outputSlice';
+import { Box, Button, ButtonGroup, Flex, IconButton, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { useRef } from 'react';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
+import { DownloadIcon, SpinnerIcon } from '@chakra-ui/icons';
 
 export const Output = () => {
     const dispatch = useDispatch();
@@ -11,6 +12,7 @@ export const Output = () => {
     const eventName = useSelector(selectEventName);
     const beerLetters = useSelector(selectBeerLetters);
     const generatedImage = useSelector(selectGeneratedImage);
+    const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
 
     const generatedPicRef = useRef(null)
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -32,19 +34,32 @@ export const Output = () => {
         dispatch(setGeneratedImage(dataUrl))
     }
 
+    const donwloadOutput = async (ref) => {
+        dispatch(setDownloadGeneratedImageStatus('saving'))
+        const dataUrl = await toJpeg(ref.current, { backgroundColor: 'white', cacheBust: true })
+        download(dataUrl, 'my-pic.jpg');
+        dispatch(setDownloadGeneratedImageStatus('success'))
+    }
+
+    if (!letters || letters.length === 0) {
+        return <></>
+    }
+
     return (
         <Box m='10'>
             <Box ref={generatedPicRef}>
                 <Box textAlign='center'>{eventName}</Box>
-                <Flex mt='5' justifyContent='center' gap='10'>
+                <Flex justifyContent='center' gap='10'>
                     {letters}
                 </Flex>
             </Box>
             <BeerModal isOpen={isOpen} onClose={() => { dispatch(setOpenBeerIdx(-1)); onClose() }}/>
-            <Button onClick={() => takeScreenshot(generatedPicRef)}>
-                Take Screenshot
-            </Button>
-            <Image mt='20' src={generatedImage}></Image>
+            <ButtonGroup float={'right'}>
+                <IconButton
+                    isLoading={downloadGeneratedImageStatus === 'saving'}
+                    onClick={() => donwloadOutput(generatedPicRef)}
+                    icon={<DownloadIcon />} />
+            </ButtonGroup>
         </Box>
     )
 }
