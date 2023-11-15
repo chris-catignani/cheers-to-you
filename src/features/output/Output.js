@@ -40,8 +40,8 @@ export const Output = () => {
     return (
         <Box m='10'>
             <Box ref={generatedPicRef}>
-                <Heading as='h3' size='lg' textAlign='center' mb='5'>{eventName}</Heading>
-                <Flex justifyContent='center' gap='10'>
+                <Heading as='h3' size='lg' textAlign='center'>{eventName}</Heading>
+                <Flex justifyContent='center' gap='10' p='5'>
                     {letters}
                 </Flex>
             </Box>
