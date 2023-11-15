@@ -1,15 +1,19 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { selectBeerDict, selectBeerLetters, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setOpenBeerIdx } from './outputSlice';
+import { selectBeerDict, selectBeerLetters, selectEventName, selectGeneratedImage, selectOpenBeerIdx, setBeerLetterAtIndex, setGeneratedImage, setOpenBeerIdx } from './outputSlice';
 import { Box, Button, Flex, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { useRef } from 'react';
+import { toJpeg } from 'html-to-image';
+import download from 'downloadjs';
 
 export const Output = () => {
     const dispatch = useDispatch();
 
     const eventName = useSelector(selectEventName);
     const beerLetters = useSelector(selectBeerLetters);
+    const generatedImage = useSelector(selectGeneratedImage);
 
+    const generatedPicRef = useRef(null)
     const { isOpen, onOpen, onClose } = useDisclosure()
-
     const letters = beerLetters.map( ({letter, beer}, idx) => {
         return (
             <Letter 
@@ -21,13 +25,26 @@ export const Output = () => {
         )
     })
 
+    const takeScreenshot = async (ref) => {
+        dispatch(setGeneratedImage(''))
+        const dataUrl = await toJpeg(ref.current, { backgroundColor: 'white', cacheBust: true })
+        download(dataUrl, 'my-pic.jpg');
+        dispatch(setGeneratedImage(dataUrl))
+    }
+
     return (
         <Box m='10'>
-            <Box textAlign='center'>{eventName}</Box>
+            <Box ref={generatedPicRef}>
+                <Box textAlign='center'>{eventName}</Box>
+                <Flex mt='5' justifyContent='center' gap='10'>
+                    {letters}
+                </Flex>
+            </Box>
             <BeerModal isOpen={isOpen} onClose={() => { dispatch(setOpenBeerIdx(-1)); onClose() }}/>
-            <Flex justifyContent='center' gap='10' mt='5'>
-                {letters}
-            </Flex>
+            <Button onClick={() => takeScreenshot(generatedPicRef)}>
+                Take Screenshot
+            </Button>
+            <Image mt='20' src={generatedImage}></Image>
         </Box>
     )
 }
