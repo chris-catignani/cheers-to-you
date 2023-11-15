@@ -7,7 +7,6 @@ const initialState = {
     beerDict: {},
     beerLetters: [],
     openedBeerIdx: -1,
-    generatedImage: null,
     
     downloadGeneratedImageStatus: '',
 };
@@ -31,22 +30,18 @@ export const outputSlice = createSlice({
         setOpenBeerIdx: (state, action) => {
             state.openedBeerIdx = action.payload
         },
-        setGeneratedImage: (state, action) => {
-            state.generatedImage = action.payload
-        },
         setDownloadGeneratedImageStatus: (state, action) => {
             state.downloadGeneratedImageStatus = action.payload
         },
     }
 });
 
-export const { setEventName, setBeerDict, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setGeneratedImage, setDownloadGeneratedImageStatus } = outputSlice.actions;
+export const { setEventName, setBeerDict, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setDownloadGeneratedImageStatus } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
 export const selectBeerDict = (state) => state.output.beerDict;
 export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
-export const selectGeneratedImage = (state) => state.output.generatedImage;
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;
 
 export const generateBeerDict = () => (dispatch, getState) => {

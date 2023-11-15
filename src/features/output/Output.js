@@ -1,17 +1,16 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { selectBeerDict, selectBeerLetters, selectDownloadGeneratedImageStatus, selectEventName, selectGeneratedImage, selectOpenBeerIdx, setBeerLetterAtIndex, setDownloadGeneratedImageStatus, setGeneratedImage, setOpenBeerIdx } from './outputSlice';
-import { Box, Button, ButtonGroup, Flex, IconButton, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { selectBeerDict, selectBeerLetters, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
+import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { useRef } from 'react';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
-import { DownloadIcon, SpinnerIcon } from '@chakra-ui/icons';
+import { DownloadIcon } from '@chakra-ui/icons';
 
 export const Output = () => {
     const dispatch = useDispatch();
 
     const eventName = useSelector(selectEventName);
     const beerLetters = useSelector(selectBeerLetters);
-    const generatedImage = useSelector(selectGeneratedImage);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
 
     const generatedPicRef = useRef(null)
@@ -27,13 +26,6 @@ export const Output = () => {
         )
     })
 
-    const takeScreenshot = async (ref) => {
-        dispatch(setGeneratedImage(''))
-        const dataUrl = await toJpeg(ref.current, { backgroundColor: 'white', cacheBust: true })
-        download(dataUrl, 'my-pic.jpg');
-        dispatch(setGeneratedImage(dataUrl))
-    }
-
     const donwloadOutput = async (ref) => {
         dispatch(setDownloadGeneratedImageStatus('saving'))
         const dataUrl = await toJpeg(ref.current, { backgroundColor: 'white', cacheBust: true })
@@ -48,7 +40,7 @@ export const Output = () => {
     return (
         <Box m='10'>
             <Box ref={generatedPicRef}>
-                <Box textAlign='center'>{eventName}</Box>
+                <Heading as='h3' size='lg' textAlign='center' mb='5'>{eventName}</Heading>
                 <Flex justifyContent='center' gap='10'>
                     {letters}
                 </Flex>
