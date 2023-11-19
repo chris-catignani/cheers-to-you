@@ -115,7 +115,7 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     return (
         <Modal isOpen={isOpen} onClose={onClose} size='xl'>
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent margin='auto'>
             <ModalHeader margin='auto'>Pick Your Beer For "{letter.toUpperCase()}"</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
