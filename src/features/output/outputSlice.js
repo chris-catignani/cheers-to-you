@@ -57,11 +57,10 @@ export const generateBeerDict = () => (dispatch, getState) => {
             }
 
             beerDict[letter].push({
-                'name': beer['beer_name'],
-                'type': beer['beer_type'],
                 'url': beer['beer_label_file'],
                 'brewer_name': beer['brewer_name'],
-                'beer_name': beer['beer_name']
+                'beer_name': beer['beer_name'],
+                'beer_type': beer['beer_type'],
             })
         })
     })

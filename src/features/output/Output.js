@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Webcam from 'react-webcam';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
-import { DownloadIcon } from '@chakra-ui/icons';
+import { AddIcon, DownloadIcon } from '@chakra-ui/icons';
 import { CameraIcon } from './assets/cameraIcon';
 import { selectBeerDict, selectBeerLetters, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
-import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, Center, Flex, Heading, IconButton, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Text, useDisclosure } from '@chakra-ui/react';
 
 
 export const Output = () => {
@@ -101,16 +101,10 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
         />
     )
 
-    const onPictureTaken = (image) => {
+    const onUserGeneratedBeerCreation = (userGeneratedBeer) => {
         dispatch(setBeerLetterAtIndex({
             idx: openBeerIdx,
-            userGeneratedBeer: {
-                'name': 'UGC',
-                'type': 'UGC',
-                'url': image,
-                'brewer_name': 'UGC',
-                'beer_name': 'UGC',
-            }
+            userGeneratedBeer,
         }));
         onClose();
     }
@@ -124,7 +118,7 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
             <ModalBody>
                 <BeerModalContent
                     displayCamera={isCameraDisplayed}
-                    onPictureTaken={onPictureTaken}
+                    onUserGeneratedBeerCreation={onUserGeneratedBeerCreation}
                     userGeneratedBeer={userGeneratedBeer}
                     availableBeers={availableBeers}
                 />
@@ -140,12 +134,43 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     )
 }
 
-export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBeers, onPictureTaken}) => {
+export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBeers, onUserGeneratedBeerCreation}) => {
+    const [ugcBeerPic, setUgcBeerPic] = useState('');
+    const [beerName, setBeerName] = useState('');
+    const [beerType, setBeerType] = useState('');
+    const [brewery, setBrewery] = useState('');
+
     if(displayCamera) {
         return (
-            <BeerCaptureWebcam 
-                onPictureTaken={onPictureTaken}
-            />
+            <>
+                <BeerCaptureWebcam 
+                    onPictureTaken={(image) => setUgcBeerPic(image)}
+                    currentPicture={ugcBeerPic}
+                />
+                <Input
+                    placeholder='Beer Name'
+                    value={beerName}
+                    onChange={e => setBeerName(e.target.value)}
+                />
+                <Input
+                    placeholder='Beer Type'
+                    value={beerType}
+                    onChange={e => setBeerType(e.target.value)}
+                />
+                <Input
+                    placeholder='Brewery'
+                    value={brewery}
+                    onChange={e => setBrewery(e.target.value)}
+                />
+                <Button onClick={() => onUserGeneratedBeerCreation({
+                    'url': ugcBeerPic,
+                    'beer_name': beerName,
+                    'beer_type': beerType,
+                    'brewer_name': brewery,
+                })}>
+                    Save
+                </Button>
+            </>
         )
     }
 
@@ -157,36 +182,71 @@ export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBee
     )
 }
 
-export const BeerCaptureWebcam = ({onPictureTaken}) => {
+export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
+    const [cameraLoading, setCameraLoading] = useState(true);
+
+    const webcamRef = React.useRef(null);
+    const capture = React.useCallback(
+        () => {onPictureTaken(webcamRef.current.getScreenshot())},
+        [webcamRef, onPictureTaken]
+    );
+
+    if(currentPicture) {
+        return (
+            <Image src={currentPicture} alt={'User Taken Picture'} fit='contain'/>
+        )
+    }
+
     const videoConstraints = {
         facingMode: { ideal: "environment" },
     };
 
+    const CameraLoadingElement = ({cameraLoading}) => {
+        if (!cameraLoading) {
+            return <></>
+        }
+        return (
+            <Center flexDirection='column'>
+                <Spinner/>
+                <Box>Initializing Camera</Box>
+            </Center>
+        )
+    }
+
     return (
-        <Webcam 
-            audio={false}
-            screenshotFormat="image/jpeg"
-            videoConstraints={videoConstraints}
-            onUserMediaError={(mediaStreamError) => console.error(mediaStreamError.name)}
-        >
-        {({ getScreenshot }) => (
-            <Button
-                onClick={() => {
-                    const imageSrc = getScreenshot()
-                    onPictureTaken(imageSrc)
-                }}
-            >
-                Capture photo
-            </Button>
-            )}
-        </Webcam>
+        <Box position='relative'>
+            <CameraLoadingElement cameraLoading={cameraLoading} />
+            <Webcam 
+                audio={false}
+                screenshotFormat="image/jpeg"
+                ref={webcamRef}
+                videoConstraints={videoConstraints}
+                onUserMedia={() => setCameraLoading(false)}
+                onUserMediaError={(mediaStreamError) => {
+                    setCameraLoading(false);
+                    console.error(mediaStreamError.name)}
+                }
+                width='100%'
+            />
+            <IconButton
+                isRound={true}
+                icon={<CameraIcon />}
+                aria-label='Take Picture'
+                onClick={capture}
+                hidden={cameraLoading}
+                position='absolute'
+                left='50%'
+                bottom='10px'
+                transform='translate(-50%, 0%)'
+            />
+        </Box>
     )
 }
 
 export const Letter = ({letter, beer, onClick}) => {
     return (
         <Box textAlign='center' width='150px' onClick={onClick}>
-            <Image src={beer['url']} alt={beer['name'] + beer['type']} boxSize='150px' fit='contain'/>
+            <Image src={beer['url']} alt={beer['beer_name'] + beer['beer_type']} boxSize='150px' fit='contain'/>
             <Box>{beer['brewer_name']}</Box>
             <Box>{beer['beer_name']}</Box>
             <Box textTransform='uppercase'>{letter}</Box>
@@ -196,12 +256,13 @@ export const Letter = ({letter, beer, onClick}) => {
 
 export const UserGeneratedBeer = ({onClick}) => {
     return (
-        <Box width='150px' height='150px'>
-            <IconButton 
-                aria-label='Upload Your Own Beer'
-                icon={<CameraIcon />}
-                onClick={onClick}
-            />
+        <Box as='button' width='150px' height='150px' onClick={onClick}>
+            <Center flexDirection='column' width='150px' height='150px'>
+                <AddIcon />
+                <Text>
+                    Add your own
+                </Text>
+            </Center>
         </Box>
     )
 }
