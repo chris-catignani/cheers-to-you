@@ -199,6 +199,8 @@ export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
 
     const videoConstraints = {
         facingMode: { ideal: "environment" },
+        height: 720,
+        width: 720,
     };
 
     const CameraLoadingElement = ({cameraLoading}) => {
@@ -224,7 +226,7 @@ export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
                 onUserMedia={() => setCameraLoading(false)}
                 onUserMediaError={(mediaStreamError) => {
                     setCameraLoading(false);
-                    console.error(mediaStreamError.name)}
+                    console.error(mediaStreamError)}
                 }
                 width='100%'
             />
