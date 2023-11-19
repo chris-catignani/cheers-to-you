@@ -45,12 +45,13 @@ export const Output = () => {
 
     return (
         <Box m='10'>
-            <Box ref={generatedPicRef} overflowX='auto'>
+            {/* Outer Flex enabling the header and content to handle overflow together without repositioning */}
+            <Flex ref={generatedPicRef} overflowX='auto' flexDirection='column' flexWrap='wrap'>
                 <Heading as='h3' size='lg' textAlign='center'>{eventName}</Heading>
                 <Flex justifyContent='safe center' gap='10' p='5'>
                     {letters}
                 </Flex>
-            </Box>
+            </Flex>
             <BeerModal
                 isOpen={isOpen}
                 isCameraDisplayed={isCameraDisplayed}
