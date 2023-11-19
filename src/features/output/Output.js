@@ -159,7 +159,7 @@ export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBee
 
 export const BeerCaptureWebcam = ({onPictureTaken}) => {
     const videoConstraints = {
-        facingMode: { ideal: ["environment", "user"] },
+        facingMode: { ideal: "environment" },
     };
 
     return (
