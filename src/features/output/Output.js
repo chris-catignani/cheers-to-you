@@ -46,7 +46,7 @@ export const Output = () => {
         <Box m='10'>
             <Box ref={generatedPicRef}>
                 <Heading as='h3' size='lg' textAlign='center'>{eventName}</Heading>
-                <Flex justifyContent='center' gap='10' p='5'>
+                <Flex justifyContent='safe center' gap='10' p='5' overflowX='auto'>
                     {letters}
                 </Flex>
             </Box>
@@ -110,10 +110,10 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     }
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onClose} size='xl'>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>Pick Your Beer For "{letter.toUpperCase()}"</ModalHeader>
+            <ModalHeader margin='auto'>Pick Your Beer For "{letter.toUpperCase()}"</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
                 <BeerModalContent
@@ -175,7 +175,7 @@ export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBee
     }
 
     return (
-        <Flex justifyContent='center' gap='10'>
+        <Flex justifyContent='safe center' flexWrap='wrap' gap='10'>
             {userGeneratedBeer}
             {availableBeers}
         </Flex>
@@ -248,7 +248,7 @@ export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
 
 export const Letter = ({letter, beer, onClick}) => {
     return (
-        <Box textAlign='center' width='150px' onClick={onClick}>
+        <Box textAlign='center' width='150px' minWidth='150px' onClick={onClick}>
             <Image src={beer['url']} alt={beer['beer_name'] + beer['beer_type']} boxSize='150px' fit='contain'/>
             <Box>{beer['brewer_name']}</Box>
             <Box>{beer['beer_name']}</Box>
