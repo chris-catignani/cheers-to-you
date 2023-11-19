@@ -86,6 +86,7 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
         return (
             <Letter 
                 beer={beer}
+                width='100px'
                 onClick={() => {
                     dispatch(setBeerLetterAtIndex({idx: openBeerIdx, beer}));
                     onClose();
@@ -246,10 +247,10 @@ export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
     )
 }
 
-export const Letter = ({letter, beer, onClick}) => {
+export const Letter = ({letter, beer, onClick, width='150px'}) => {
     return (
-        <Box textAlign='center' width='150px' minWidth='150px' onClick={onClick}>
-            <Image src={beer['url']} alt={beer['beer_name'] + beer['beer_type']} boxSize='150px' fit='contain'/>
+        <Box textAlign='center' width={width} minWidth={width} onClick={onClick}>
+            <Image src={beer['url']} alt={beer['beer_name'] + beer['beer_type']} boxSize={width} fit='contain'/>
             <Box>{beer['brewer_name']}</Box>
             <Box>{beer['beer_name']}</Box>
             <Box textTransform='uppercase'>{letter}</Box>
@@ -259,8 +260,8 @@ export const Letter = ({letter, beer, onClick}) => {
 
 export const UserGeneratedBeer = ({onClick}) => {
     return (
-        <Box as='button' width='150px' height='150px' onClick={onClick}>
-            <Center flexDirection='column' width='150px' height='150px'>
+        <Box as='button' width='100px' height='100px' onClick={onClick}>
+            <Center flexDirection='column' width='100px' height='100px'>
                 <AddIcon />
                 <Text>
                     Add your own
