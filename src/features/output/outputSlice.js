@@ -22,7 +22,11 @@ export const outputSlice = createSlice({
             state.beerDict = action.payload
         },
         setBeerLetterAtIndex: (state, action) => {
-            state.beerLetters[action.payload.idx].beer = action.payload.beer
+            state.beerLetters[action.payload.idx] = {
+                ...state.beerLetters[action.payload.idx],
+                beer: action.payload.beer,
+                userGeneratedBeer: action.payload.userGeneratedBeer,
+            }
         },
         setBeerLetters: (state, action) => {
             state.beerLetters = action.payload
@@ -74,6 +78,7 @@ export const generateOutput = (personsName, eventName) => (dispatch, getState) =
         const letter = personsName.charAt(i).toLowerCase();
         beerLetters.push({
             letter: letter,
+            userGeneratedBeer: {},
             beer: sample(beerDict[letter]),
         })
     }
