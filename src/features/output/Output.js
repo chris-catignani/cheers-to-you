@@ -33,7 +33,8 @@ export const Output = () => {
 
     const donwloadOutput = async (ref) => {
         dispatch(setDownloadGeneratedImageStatus('saving'))
-        const dataUrl = await toJpeg(ref.current, { backgroundColor: 'white', cacheBust: true })
+        const node = ref.current;
+        const dataUrl = await toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
         download(dataUrl, 'my-pic.jpg');
         dispatch(setDownloadGeneratedImageStatus('success'))
     }
@@ -44,9 +45,9 @@ export const Output = () => {
 
     return (
         <Box m='10'>
-            <Box ref={generatedPicRef}>
+            <Box ref={generatedPicRef} overflowX='auto'>
                 <Heading as='h3' size='lg' textAlign='center'>{eventName}</Heading>
-                <Flex justifyContent='safe center' gap='10' p='5' overflowX='auto'>
+                <Flex justifyContent='safe center' gap='10' p='5'>
                     {letters}
                 </Flex>
             </Box>
