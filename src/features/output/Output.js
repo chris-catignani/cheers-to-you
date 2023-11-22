@@ -13,8 +13,6 @@ import { Box, Button, ButtonGroup, Center, Flex, Heading, IconButton, Image, Inp
 export const Output = () => {
     const dispatch = useDispatch();
 
-    const [isCameraDisplayed, setIsCameraDisplayed] = useState(false);
-
     const eventName = useSelector(selectEventName);
     const beerLetters = useSelector(selectBeerLetters);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
@@ -55,10 +53,7 @@ export const Output = () => {
             </Flex>
             <BeerModal
                 isOpen={isOpen}
-                isCameraDisplayed={isCameraDisplayed}
-                setIsCameraDisplayed={setIsCameraDisplayed}
                 onClose={() => {
-                    setIsCameraDisplayed(false);
                     dispatch(setOpenBeerIdx(-1));
                     dispatch(setBeerSearchResults([]))
                     onClose()
@@ -74,9 +69,7 @@ export const Output = () => {
     )
 }
 
-export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDisplayed}) => {
-    const dispatch = useDispatch();
-
+export const BeerModal = ({isOpen, onClose}) => {
     const beerLetters = useSelector(selectBeerLetters);
     const openBeerIdx = useSelector(selectOpenBeerIdx);
     if (openBeerIdx === -1) {
@@ -84,20 +77,6 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     }
 
     const {letter} = beerLetters[openBeerIdx]
-
-    const userGeneratedBeer = (
-        <UserGeneratedBeer 
-            onClick={() => setIsCameraDisplayed(true)}
-        />
-    )
-
-    const onUserGeneratedBeerCreation = (userGeneratedBeer) => {
-        dispatch(setBeerLetterAtIndex({
-            idx: openBeerIdx,
-            userGeneratedBeer,
-        }));
-        onClose();
-    }
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} size='xl'>
@@ -107,9 +86,6 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
             <ModalCloseButton />
             <ModalBody>
                 <BeerModalContent
-                    displayCamera={isCameraDisplayed}
-                    onUserGeneratedBeerCreation={onUserGeneratedBeerCreation}
-                    userGeneratedBeer={userGeneratedBeer}
                     openBeerIdx={openBeerIdx}
                     onClose={onClose}
                 />
@@ -125,51 +101,68 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     )
 }
 
-export const BeerModalContent = ({displayCamera, userGeneratedBeer, onUserGeneratedBeerCreation, openBeerIdx, onClose}) => {
-    const [ugcBeerPic, setUgcBeerPic] = useState('');
-    const [beerName, setBeerName] = useState('');
-    const [beerType, setBeerType] = useState('');
-    const [brewery, setBrewery] = useState('');
+export const BeerModalContent = ({openBeerIdx, onClose}) => {
+    const dispatch = useDispatch();
+    const [isInBeerUGCMode, setIsInBeerUGCMode] = useState(false);
 
-    if(displayCamera) {
+    if (isInBeerUGCMode) {
         return (
-            <>
-                <BeerCaptureWebcam 
-                    onPictureTaken={(image) => setUgcBeerPic(image)}
-                    currentPicture={ugcBeerPic}
-                />
-                <Input
-                    placeholder='Beer Name'
-                    value={beerName}
-                    onChange={e => setBeerName(e.target.value)}
-                />
-                <Input
-                    placeholder='Beer Type'
-                    value={beerType}
-                    onChange={e => setBeerType(e.target.value)}
-                />
-                <Input
-                    placeholder='Brewery'
-                    value={brewery}
-                    onChange={e => setBrewery(e.target.value)}
-                />
-                <Button onClick={() => onUserGeneratedBeerCreation({
-                    'url': ugcBeerPic,
-                    'beer_name': beerName,
-                    'beer_type': beerType,
-                    'brewer_name': brewery,
-                })}>
-                    Save
-                </Button>
-            </>
+            <BeerUGCInput onClick={(userGeneratedBeer) => {
+                dispatch(setBeerLetterAtIndex({
+                    idx: openBeerIdx,
+                    userGeneratedBeer,
+                }));
+                onClose();
+            }} />
         )
     }
 
     return (
         <Flex justifyContent='safe center' flexWrap='wrap' gap='10'>
             <BeerSearch openBeerIdx={openBeerIdx} onClose={onClose}/>
-            {userGeneratedBeer}
+            <UserGeneratedBeer 
+                onClick={() => setIsInBeerUGCMode(true)}
+            />
         </Flex>
+    )
+}
+
+export const BeerUGCInput = ({onClick}) => {
+    const [ugcBeerPic, setUgcBeerPic] = useState('');
+    const [beerName, setBeerName] = useState('');
+    const [beerType, setBeerType] = useState('');
+    const [brewery, setBrewery] = useState('');
+
+    return (
+        <>
+            <BeerCaptureWebcam 
+                onPictureTaken={(image) => setUgcBeerPic(image)}
+                currentPicture={ugcBeerPic}
+            />
+            <Input
+                placeholder='Beer Name'
+                value={beerName}
+                onChange={e => setBeerName(e.target.value)}
+            />
+            <Input
+                placeholder='Beer Type'
+                value={beerType}
+                onChange={e => setBeerType(e.target.value)}
+            />
+            <Input
+                placeholder='Brewery'
+                value={brewery}
+                onChange={e => setBrewery(e.target.value)}
+            />
+            <Button onClick={() => onClick({
+                'url': ugcBeerPic,
+                'beer_name': beerName,
+                'beer_type': beerType,
+                'brewer_name': brewery,
+            })}>
+                Save
+            </Button>
+        </>
     )
 }
 
