@@ -1,13 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useRef, useState } from 'react';
-import Webcam from 'react-webcam';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
-import { AddIcon, DownloadIcon } from '@chakra-ui/icons';
-import { CameraIcon } from './assets/cameraIcon';
+import { DownloadIcon } from '@chakra-ui/icons';
+import { AddYourOwn } from './components/AddYourOwn';
+import { Camera } from './components/Camera';
 import { Letter } from './components/Letter';
 import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
-import { Box, Button, ButtonGroup, Center, Flex, Heading, IconButton, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Text, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 
 
 export const Output = () => {
@@ -120,7 +120,7 @@ export const BeerModalContent = ({openBeerIdx, onClose}) => {
     return (
         <Flex justifyContent='safe center' flexWrap='wrap' gap='10'>
             <BeerSearch openBeerIdx={openBeerIdx} onClose={onClose}/>
-            <UserGeneratedBeer 
+            <AddYourOwn 
                 onClick={() => setIsInBeerUGCMode(true)}
             />
         </Flex>
@@ -135,7 +135,7 @@ export const BeerUGCInput = ({onClick}) => {
 
     return (
         <>
-            <BeerCaptureWebcam 
+            <Camera
                 onPictureTaken={(image) => setUgcBeerPic(image)}
                 currentPicture={ugcBeerPic}
             />
@@ -198,80 +198,5 @@ export const BeerSearch = ({openBeerIdx, onClose}) => {
             />
             {beerSearchResultsAsLetters}
         </>
-    )
-}
-
-export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
-    const [cameraLoading, setCameraLoading] = useState(true);
-
-    const webcamRef = React.useRef(null);
-    const capture = React.useCallback(
-        () => {onPictureTaken(webcamRef.current.getScreenshot())},
-        [webcamRef, onPictureTaken]
-    );
-
-    if(currentPicture) {
-        return (
-            <Image src={currentPicture} alt={'User Taken Picture'} fit='contain'/>
-        )
-    }
-
-    const videoConstraints = {
-        facingMode: { ideal: "environment" },
-    };
-
-    const CameraLoadingElement = ({cameraLoading}) => {
-        if (!cameraLoading) {
-            return <></>
-        }
-        return (
-            <Center flexDirection='column'>
-                <Spinner/>
-                <Box>Initializing Camera</Box>
-            </Center>
-        )
-    }
-
-    return (
-        <Box position='relative'>
-            <CameraLoadingElement cameraLoading={cameraLoading} />
-            <Webcam 
-                audio={false}
-                screenshotFormat="image/jpeg"
-                height='1280'
-                width='1280'
-                ref={webcamRef}
-                videoConstraints={videoConstraints}
-                onUserMedia={() => setCameraLoading(false)}
-                onUserMediaError={(mediaStreamError) => {
-                    setCameraLoading(false);
-                    console.error(mediaStreamError)}
-                }
-            />
-            <IconButton
-                isRound={true}
-                icon={<CameraIcon />}
-                aria-label='Take Picture'
-                onClick={capture}
-                hidden={cameraLoading}
-                position='absolute'
-                left='50%'
-                bottom='10px'
-                transform='translate(-50%, 0%)'
-            />
-        </Box>
-    )
-}
-
-export const UserGeneratedBeer = ({onClick}) => {
-    return (
-        <Box as='button' width='100px' height='100px' onClick={onClick}>
-            <Center flexDirection='column' width='100px' height='100px'>
-                <AddIcon />
-                <Text>
-                    Add your own
-                </Text>
-            </Center>
-        </Box>
     )
 }
