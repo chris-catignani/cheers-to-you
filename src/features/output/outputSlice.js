@@ -3,9 +3,9 @@ import beers from './data/beers.json';
 import { sample } from 'lodash-es';
 
 const initialState = {
-    eventName: '',
+    eventName: sessionStorage.getItem('output.eventName') || '',
     beerDict: {},
-    beerLetters: [],
+    beerLetters: JSON.parse(sessionStorage.getItem('output.beerLetters') || '[]'),
     openedBeerIdx: -1,
     
     downloadGeneratedImageStatus: '',
@@ -17,6 +17,7 @@ export const outputSlice = createSlice({
     reducers: {
         setEventName: (state, action) => {
             state.eventName = action.payload
+            sessionStorage.setItem('output.eventName', action.payload)
         },
         setBeerDict: (state, action) => {
             state.beerDict = action.payload
@@ -27,9 +28,11 @@ export const outputSlice = createSlice({
                 beer: action.payload.beer,
                 userGeneratedBeer: action.payload.userGeneratedBeer,
             }
+            sessionStorage.setItem('output.beerLetters', JSON.stringify(state.beerLetters))
         },
         setBeerLetters: (state, action) => {
             state.beerLetters = action.payload
+            sessionStorage.setItem('output.beerLetters', JSON.stringify(action.payload))
         },
         setOpenBeerIdx: (state, action) => {
             state.openedBeerIdx = action.payload

@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    personsName: '',
-    eventName: '',
+    personsName: sessionStorage.getItem('event.personsName') || '',
+    eventName: sessionStorage.getItem('event.eventName') || '',
 };
 
 export const eventSlice = createSlice({
@@ -11,9 +11,11 @@ export const eventSlice = createSlice({
     reducers: {
         setPersonsName: (state, action) => {
             state.personsName = action.payload
+            sessionStorage.setItem('event.personsName', action.payload)
         },
         setEventName: (state, action) => {
             state.eventName = action.payload
+            sessionStorage.setItem('event.eventName', action.payload)
         }
     },
 });
