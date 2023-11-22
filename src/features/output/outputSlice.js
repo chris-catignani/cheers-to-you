@@ -1,10 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 import beers from './data/beers.json';
 import { sample } from 'lodash-es';
+import Fuse from 'fuse.js';
+
+const fuse = new Fuse(beers, {
+    keys: [
+        'beer_name',
+        'brewer_name',
+    ],
+    includeScore: true,
+    ignoreLocation: true,
+    useExtendedSearch: true,
+});
 
 const initialState = {
     eventName: sessionStorage.getItem('output.eventName') || '',
-    beerDict: {},
     beerLetters: JSON.parse(sessionStorage.getItem('output.beerLetters') || '[]'),
     openedBeerIdx: -1,
     beerSearchResults: [],
@@ -19,9 +29,6 @@ export const outputSlice = createSlice({
         setEventName: (state, action) => {
             state.eventName = action.payload
             sessionStorage.setItem('output.eventName', action.payload)
-        },
-        setBeerDict: (state, action) => {
-            state.beerDict = action.payload
         },
         setBeerLetterAtIndex: (state, action) => {
             state.beerLetters[action.payload.idx] = {
@@ -47,46 +54,25 @@ export const outputSlice = createSlice({
     }
 });
 
-export const { setEventName, setBeerDict, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setDownloadGeneratedImageStatus } = outputSlice.actions;
+export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setDownloadGeneratedImageStatus } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
-export const selectBeerDict = (state) => state.output.beerDict;
 export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
 export const selectBeerSearchResults = (state) => state.output.beerSearchResults;
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;
 
-export const generateBeerDict = () => (dispatch, getState) => {
-    const beerDict = {}
-    beers.forEach(beer => {
-        beer['beer_name_match_initial'].toLowerCase().split(',').forEach(letter => {
-            if (!(letter in beerDict)) {
-                beerDict[letter] = []
-            }
-
-            beerDict[letter].push({
-                'url': beer['beer_label_file'],
-                'brewer_name': beer['brewer_name'],
-                'beer_name': beer['beer_name'],
-                'beer_type': beer['beer_type'],
-            })
-        })
-    })
-
-    dispatch(setBeerDict(beerDict))
-}
-
 export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
     dispatch(setEventName(eventName));
 
-    const { beerDict } = getState().output;
     const beerLetters = [];
     for (var i = 0; i < personsName.length; i++) {
         const letter = personsName.charAt(i).toLowerCase();
+        
         beerLetters.push({
             letter: letter,
             userGeneratedBeer: {},
-            beer: sample(beerDict[letter]),
+            beer: sample(getDefaultBeersForLetter(letter)),
         })
     }
 
@@ -94,14 +80,36 @@ export const generateOutput = (personsName, eventName) => (dispatch, getState) =
 };
 
 export const searchForBeer = (beerSearchQuery) => (dispatch, getState) => {
-    let beerSearchResults = []
-    
-    if(beerSearchQuery) {
-        const { beerDict } = getState().output;
-        beerSearchResults = beerDict[beerSearchQuery[0]]
+    const beerSearchResults = fuseSearch(beerSearchQuery)
+    dispatch(setBeerSearchResults(beerSearchResults, {scoreThreshold: 0.40}))
+}
+
+const getDefaultBeersForLetter = (letter) => {
+    const fuseSearchQuery = {
+        $or: [
+            { beer_name: `^${letter}` },
+            { beer_name: `" ${letter}"` },
+            { brewer_name: `^${letter}` },
+            { brewer_name: `" ${letter}"` },
+        ]
     }
 
-    dispatch(setBeerSearchResults(beerSearchResults))
+    return fuseSearch(fuseSearchQuery, {scoreThreshold: 0.5})
+}
+
+const fuseSearch = (query, {limit = 10, scoreThreshold = 0.5} = {}) => {
+    if (!query) {
+        return []
+    }
+
+    const fuseResults = fuse.search(query, {limit})
+    // console.log(fuseResults)
+    return fuseResults.reduce((results, result) => {
+        if (result['score'] < scoreThreshold) {
+            results.push(result['item'])
+        }
+        return results
+    }, [])
 }
 
 export default outputSlice.reducer;

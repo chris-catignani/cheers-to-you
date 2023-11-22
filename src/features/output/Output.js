@@ -155,7 +155,7 @@ export const BeerUGCInput = ({onClick}) => {
                 onChange={e => setBrewery(e.target.value)}
             />
             <Button onClick={() => onClick({
-                'url': ugcBeerPic,
+                'beer_label_file': ugcBeerPic,
                 'beer_name': beerName,
                 'beer_type': beerType,
                 'brewer_name': brewery,
