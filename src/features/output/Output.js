@@ -3,8 +3,8 @@ import React, { useRef, useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
 import { DownloadIcon } from '@chakra-ui/icons';
+import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
-import { Camera } from './components/Camera';
 import { Letter } from './components/Letter';
 import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
 import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
@@ -124,45 +124,6 @@ export const BeerModalContent = ({openBeerIdx, onClose}) => {
                 onClick={() => setIsInBeerUGCMode(true)}
             />
         </Flex>
-    )
-}
-
-export const BeerUGCInput = ({onClick}) => {
-    const [ugcBeerPic, setUgcBeerPic] = useState('');
-    const [beerName, setBeerName] = useState('');
-    const [beerType, setBeerType] = useState('');
-    const [brewery, setBrewery] = useState('');
-
-    return (
-        <>
-            <Camera
-                onPictureTaken={(image) => setUgcBeerPic(image)}
-                currentPicture={ugcBeerPic}
-            />
-            <Input
-                placeholder='Beer Name'
-                value={beerName}
-                onChange={e => setBeerName(e.target.value)}
-            />
-            <Input
-                placeholder='Beer Type'
-                value={beerType}
-                onChange={e => setBeerType(e.target.value)}
-            />
-            <Input
-                placeholder='Brewery'
-                value={brewery}
-                onChange={e => setBrewery(e.target.value)}
-            />
-            <Button onClick={() => onClick({
-                'beer_label_file': ugcBeerPic,
-                'beer_name': beerName,
-                'beer_type': beerType,
-                'brewer_name': brewery,
-            })}>
-                Save
-            </Button>
-        </>
     )
 }
 
