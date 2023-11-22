@@ -202,8 +202,6 @@ export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
 
     const videoConstraints = {
         facingMode: { ideal: "environment" },
-        height: 1280,
-        width: 1280,
     };
 
     const CameraLoadingElement = ({cameraLoading}) => {
