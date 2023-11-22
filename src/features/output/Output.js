@@ -6,7 +6,7 @@ import download from 'downloadjs';
 import { AddIcon, DownloadIcon } from '@chakra-ui/icons';
 import { CameraIcon } from './assets/cameraIcon';
 import { Letter } from './components/Letter';
-import { selectBeerDict, selectBeerLetters, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
+import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
 import { Box, Button, ButtonGroup, Center, Flex, Heading, IconButton, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Text, useDisclosure } from '@chakra-ui/react';
 
 
@@ -60,6 +60,7 @@ export const Output = () => {
                 onClose={() => {
                     setIsCameraDisplayed(false);
                     dispatch(setOpenBeerIdx(-1));
+                    dispatch(setBeerSearchResults([]))
                     onClose()
                 }
             }/>
@@ -77,27 +78,12 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     const dispatch = useDispatch();
 
     const beerLetters = useSelector(selectBeerLetters);
-    const beerDict = useSelector(selectBeerDict)
     const openBeerIdx = useSelector(selectOpenBeerIdx);
     if (openBeerIdx === -1) {
         return <></>
     }
 
     const {letter} = beerLetters[openBeerIdx]
-
-    const availableBeers = beerDict[letter].map( (beer, idx) => {
-        return (
-            <Letter 
-                beer={beer}
-                width='100px'
-                onClick={() => {
-                    dispatch(setBeerLetterAtIndex({idx: openBeerIdx, beer}));
-                    onClose();
-                }}
-                key={`beer-picker-${idx}}`}>
-            </Letter>
-        )
-    })
 
     const userGeneratedBeer = (
         <UserGeneratedBeer 
@@ -124,7 +110,8 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
                     displayCamera={isCameraDisplayed}
                     onUserGeneratedBeerCreation={onUserGeneratedBeerCreation}
                     userGeneratedBeer={userGeneratedBeer}
-                    availableBeers={availableBeers}
+                    openBeerIdx={openBeerIdx}
+                    onClose={onClose}
                 />
             </ModalBody>
   
@@ -138,7 +125,7 @@ export const BeerModal = ({isOpen, onClose, isCameraDisplayed, setIsCameraDispla
     )
 }
 
-export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBeers, onUserGeneratedBeerCreation}) => {
+export const BeerModalContent = ({displayCamera, userGeneratedBeer, onUserGeneratedBeerCreation, openBeerIdx, onClose}) => {
     const [ugcBeerPic, setUgcBeerPic] = useState('');
     const [beerName, setBeerName] = useState('');
     const [beerType, setBeerType] = useState('');
@@ -180,9 +167,44 @@ export const BeerModalContent = ({displayCamera, userGeneratedBeer, availableBee
 
     return (
         <Flex justifyContent='safe center' flexWrap='wrap' gap='10'>
+            <BeerSearch openBeerIdx={openBeerIdx} onClose={onClose}/>
             {userGeneratedBeer}
-            {availableBeers}
         </Flex>
+    )
+}
+
+export const BeerSearch = ({openBeerIdx, onClose}) => {
+    const dispatch = useDispatch();
+    const beerSearchResults = useSelector(selectBeerSearchResults);
+
+    const [beerSearchQuery, setBeerSearchQuery] = useState('');
+
+    const beerSearchResultsAsLetters = beerSearchResults.map( (beer, idx) => {
+        return (
+            <Letter 
+                beer={beer}
+                width='100px'
+                onClick={() => {
+                    dispatch(setBeerLetterAtIndex({idx: openBeerIdx, beer}));
+                    onClose();
+                }}
+                key={`beer-picker-${idx}}`}>
+            </Letter>
+        )
+    })
+
+    return (
+        <>
+            <Input
+                placeholder='Search for beer'
+                value={beerSearchQuery}
+                onChange={e => {
+                    setBeerSearchQuery(e.target.value);
+                    dispatch(searchForBeer(e.target.value));
+                }}
+            />
+            {beerSearchResultsAsLetters}
+        </>
     )
 }
 
