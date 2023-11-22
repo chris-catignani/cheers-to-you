@@ -5,6 +5,7 @@ import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
 import { AddIcon, DownloadIcon } from '@chakra-ui/icons';
 import { CameraIcon } from './assets/cameraIcon';
+import { Letter } from './components/Letter';
 import { selectBeerDict, selectBeerLetters, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
 import { Box, Button, ButtonGroup, Center, Flex, Heading, IconButton, Image, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Text, useDisclosure } from '@chakra-ui/react';
 
@@ -243,17 +244,6 @@ export const BeerCaptureWebcam = ({onPictureTaken, currentPicture}) => {
                 bottom='10px'
                 transform='translate(-50%, 0%)'
             />
-        </Box>
-    )
-}
-
-export const Letter = ({letter, beer, onClick, width='150px'}) => {
-    return (
-        <Box textAlign='center' width={width} minWidth={width} onClick={onClick}>
-            <Image src={beer['url']} alt={beer['beer_name'] + beer['beer_type']} boxSize={width} fit='contain'/>
-            <Box>{beer['brewer_name']}</Box>
-            <Box>{beer['beer_name']}</Box>
-            <Box textTransform='uppercase'>{letter}</Box>
         </Box>
     )
 }
