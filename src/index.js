@@ -5,10 +5,10 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { RouterProvider, createHashRouter } from 'react-router-dom';
 import { SocialMedia } from './features/socialMedia/SocialMedia';
 
-const router = createBrowserRouter([
+const router = createHashRouter([
     {
         path: "/",
         element: <App />,
