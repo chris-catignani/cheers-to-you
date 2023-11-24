@@ -89,7 +89,7 @@ export const ShareModal = () => {
 
     const eventName = useSelector(selectEventName);
     const uploadedImageData = useSelector(selectUploadedImageData)
-    const shareUrl = 'https://chris-catignani.github.io/cheers-to-you/shared/' + uploadedImageData['appId'] + '/' + uploadedImageData['fileId']
+    const shareUrl = 'https://chris-catignani.github.io/cheers-to-you/#/shared/' + uploadedImageData['appId'] + '/' + uploadedImageData['fileId']
 
     // Open the Modal if we have uploaded the image data
     useEffect(() => {
