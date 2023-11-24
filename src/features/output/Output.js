@@ -2,11 +2,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useRef, useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
-import { DownloadIcon } from '@chakra-ui/icons';
+import { DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
-import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx } from './outputSlice';
+import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 
 
@@ -16,6 +16,8 @@ export const Output = () => {
     const eventName = useSelector(selectEventName);
     const beerLetters = useSelector(selectBeerLetters);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
+    const uploadedImageData = useSelector(selectUploadedImageData)
+    const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
     const generatedPicRef = useRef(null)
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -36,6 +38,18 @@ export const Output = () => {
         const dataUrl = await toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
         download(dataUrl, 'my-pic.jpg');
         dispatch(setDownloadGeneratedImageStatus('success'))
+    }
+
+    // TODO move to action/reducer
+    const uploadOutput = async (ref) => {
+        const node = ref.current;
+        const dataUrl = await toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
+        dispatch(uploadImage(dataUrl))
+    }
+
+    // temporary
+    if(Object.keys(uploadedImageData).length >= 0) {
+        console.log(window.location.href + 'shared/' + encodeURIComponent(uploadedImageData['fileUrl']))
     }
 
     if (!letters || letters.length === 0) {
@@ -60,6 +74,10 @@ export const Output = () => {
                 }
             }/>
             <ButtonGroup float={'right'}>
+                <IconButton
+                    isLoading={uploadGeneratedImageStatus === 'uploading'}
+                    onClick={() => uploadOutput(generatedPicRef)} 
+                    icon={<ExternalLinkIcon />}/>
                 <IconButton
                     isLoading={downloadGeneratedImageStatus === 'saving'}
                     onClick={() => donwloadOutput(generatedPicRef)}

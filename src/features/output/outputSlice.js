@@ -1,7 +1,8 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import beers from './data/beers.json';
 import { sample } from 'lodash-es';
 import Fuse from 'fuse.js';
+import { UploadManager } from '@bytescale/sdk';
 
 const fuse = new Fuse(beers, {
     keys: [
@@ -18,9 +19,30 @@ const initialState = {
     beerLetters: JSON.parse(sessionStorage.getItem('output.beerLetters') || '[]'),
     openedBeerIdx: -1,
     beerSearchResults: [],
+    uploadedImageData: {},
     
     downloadGeneratedImageStatus: '',
+    uploadGeneratedImageStatus: '',
 };
+
+export const uploadImage = createAsyncThunk(
+    'output/uploadImage',
+    async (dataUrl) => {
+        const image = await fetch(dataUrl)
+        const imageArrayBuffer = await image.arrayBuffer()
+
+        const uploadManager = new UploadManager({
+            apiKey: "free", // Get API key: https://www.bytescale.com/get-started
+        });
+    
+        const { fileUrl, filePath } = await uploadManager.upload({
+            data: imageArrayBuffer,
+            mime: 'image/jpeg',
+            originalFileName: 'example.jpeg',
+        });
+        return { fileUrl, filePath }
+    }
+)
 
 export const outputSlice = createSlice({
     name: 'output',
@@ -51,6 +73,20 @@ export const outputSlice = createSlice({
         setDownloadGeneratedImageStatus: (state, action) => {
             state.downloadGeneratedImageStatus = action.payload
         },
+    },
+    extraReducers: {
+        [uploadImage.pending]: (state) => {
+            state.uploadGeneratedImageStatus = 'uploading';
+            state.uploadedImageData = {}
+        },
+        [uploadImage.fulfilled]: (state, action) => {
+            state.uploadGeneratedImageStatus = ''
+            state.uploadedImageData = action.payload
+        },
+        [uploadImage.rejected]: (state) => {
+            state.uploadGeneratedImageStatus = ''
+            state.uploadedImageData = {}
+        },
     }
 });
 
@@ -61,6 +97,8 @@ export const selectBeerLetters = (state) => state.output.beerLetters;
 export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
 export const selectBeerSearchResults = (state) => state.output.beerSearchResults;
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;
+export const selectUploadGeneratedImageStatus = (state) => state.output.uploadGeneratedImageStatus;
+export const selectUploadedImageData = (state) => state.output.uploadedImageData;
 
 export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
     dispatch(setEventName(eventName));
