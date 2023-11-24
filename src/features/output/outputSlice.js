@@ -75,6 +75,9 @@ export const outputSlice = createSlice({
         setBeerSearchResults: (state, action) => {
             state.beerSearchResults = action.payload;
         },
+        setsUploadedImageData: (state, action) => {
+            state.uploadedImageData = action.payload
+        },
         setDownloadGeneratedImageStatus: (state, action) => {
             state.downloadGeneratedImageStatus = action.payload
         },
@@ -95,7 +98,7 @@ export const outputSlice = createSlice({
     }
 });
 
-export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setDownloadGeneratedImageStatus } = outputSlice.actions;
+export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData, setDownloadGeneratedImageStatus } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
