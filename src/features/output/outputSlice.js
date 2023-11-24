@@ -35,12 +35,17 @@ export const uploadImage = createAsyncThunk(
             apiKey: "free", // Get API key: https://www.bytescale.com/get-started
         });
     
-        const { fileUrl, filePath } = await uploadManager.upload({
+        const { fileUrl } = await uploadManager.upload({
             data: imageArrayBuffer,
             mime: 'image/jpeg',
             originalFileName: 'example.jpeg',
         });
-        return { fileUrl, filePath }
+
+        const urlSegments = fileUrl.split('/')
+        return {
+            appId: urlSegments[3],
+            fileId: urlSegments[6].slice(0, -5)
+        }
     }
 )
 

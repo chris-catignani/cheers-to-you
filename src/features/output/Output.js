@@ -49,7 +49,7 @@ export const Output = () => {
 
     // temporary
     if(Object.keys(uploadedImageData).length >= 0) {
-        console.log(window.location.href + 'shared/' + encodeURIComponent(uploadedImageData['fileUrl']))
+        console.log(window.location.href + 'shared/' + uploadedImageData['appId'] + '/' + uploadedImageData['fileId'])
     }
 
     if (!letters || letters.length === 0) {

@@ -14,7 +14,7 @@ const router = createBrowserRouter([
         element: <App />,
     },
     {
-        path: "shared/:sharedId",
+        path: "shared/:appId/:fileId",
         element: <SocialMedia />,
     },
 ]);

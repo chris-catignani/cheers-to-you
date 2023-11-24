@@ -3,11 +3,13 @@ import { useParams } from "react-router-dom"
 
 export const SocialMedia = () => {
 
-    const { sharedId } = useParams()
+    const { appId, fileId } = useParams()
+
+    // const imageUrl =
 
     return (
         <Box>
-            <Image src={sharedId}/>
+            <Image src={`https://upcdn.io/${appId}/raw/demo/${fileId}.jpeg`}/>
         </Box>
     )
 }
