@@ -5,7 +5,7 @@ import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
-import { downloadImage, searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, toggleLockedBeerLetterIdx, uploadImage } from './outputSlice';
+import { downloadImage, searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectLockedBeerLetterIdxs, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, toggleLockedBeerLetterIdx, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
 
@@ -15,22 +15,22 @@ export const Output = () => {
 
     const eventName = useSelector(selectEventName);
     const beerLetters = useSelector(selectBeerLetters);
+    const lockedBeerIdxs = useSelector(selectLockedBeerLetterIdxs);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
     const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
     const generatedPicRef = useRef(null)
     const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
         return (
-            <Flex flexDirection='column'>
+            <Flex flexDirection='column' key={`beer-letter-${idx}`}>
                 <Letter 
                     letter={letter}
                     beer={beer || userGeneratedBeer}
-                    onClick={() => dispatch(setOpenBeerIdx(idx)) }
-                    key={`beer-letter-${idx}`}>
+                    onClick={() => dispatch(setOpenBeerIdx(idx)) } >
                 </Letter>
-                {/* <Button onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
-                    Lock Beer
-                </Button> */}
+                <Button onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
+                    {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
+                </Button>
             </Flex>
         )
     })
