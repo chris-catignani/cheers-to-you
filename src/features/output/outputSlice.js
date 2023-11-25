@@ -8,16 +8,22 @@ import download from 'downloadjs';
 
 const formattedBeers = ((beers) => {
     const breweryWordsToTrim = new RegExp(beerRules['brewery']['wordsToTrim'].join('|'), 'gi')
+    const beerNameWordsToTrim = new RegExp(beerRules['beerName']['wordsToTrim'].join('|'), 'gi')
     const multispaceRegex = new RegExp(' {2,}', 'g')
 
     const formatBreweryName = (breweryName) => {
         return breweryName.replace(breweryWordsToTrim, '').trim().replace(multispaceRegex, ' ')
     }
 
+    const formatBeerName = (beerName) => {
+        return beerName.replace(beerNameWordsToTrim, '').trim().replace(multispaceRegex, ' ')
+    }
+
     return Object.values(beers).map(beer => {
-        console.log("\"" + beer['brewer_name'] + "\" -> \"" + formatBreweryName(beer['brewer_name']) + "\"")
+        console.log("formatted brewery: \"" + beer['brewer_name'] + "\" -> \"" + formatBreweryName(beer['brewer_name']) + "\"")
+        console.log("formatted beer: \"" + beer['beer_name'] + "\" -> \"" + formatBeerName(beer['beer_name']) + "\"")
         return {
-            'beer_name': beer['beer_name'],
+            'beer_name': formatBeerName(beer['beer_name']),
             'brewer_name': formatBreweryName(beer['brewer_name']),
             'beer_type': beer['beer_type'],
             'beer_label_file': beer['beer_label_file_small'],

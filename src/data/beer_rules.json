@@ -12,5 +12,10 @@
             "Craft Brew",
             "Brews"
         ]
+    },
+    "beerName": {
+        "wordsToTrim": [
+            "Barrel Aged Nitro"
+        ]
     }
 }
