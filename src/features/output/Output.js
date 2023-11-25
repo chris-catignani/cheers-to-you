@@ -19,13 +19,12 @@ export const Output = () => {
     const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
     const generatedPicRef = useRef(null)
-    const { isOpen, onOpen, onClose } = useDisclosure()
     const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
         return (
             <Letter 
                 letter={letter}
                 beer={beer || userGeneratedBeer}
-                onClick={() => { dispatch(setOpenBeerIdx(idx)); onOpen(); }}
+                onClick={() => dispatch(setOpenBeerIdx(idx)) }
                 key={`beer-letter-${idx}`}>
             </Letter>
         )
@@ -56,14 +55,7 @@ export const Output = () => {
                     {letters}
                 </Flex>
             </Flex>
-            <BeerModal
-                isOpen={isOpen}
-                onClose={() => {
-                    dispatch(setOpenBeerIdx(-1));
-                    dispatch(setBeerSearchResults([]))
-                    onClose()
-                }
-            }/>
+            <BeerModal />
             <ShareModal />
             <ButtonGroup float={'right'}>
                 <IconButton
@@ -145,17 +137,30 @@ export const ShareModal = () => {
     )
 }
 
-export const BeerModal = ({isOpen, onClose}) => {
+export const BeerModal = () => {
+    const dispatch = useDispatch();
+    const { isOpen, onOpen, onClose } = useDisclosure()
+
     const beerLetters = useSelector(selectBeerLetters);
     const openBeerIdx = useSelector(selectOpenBeerIdx);
-    if (openBeerIdx === -1) {
-        return <></>
+
+    const clearDataOnClose = () => {
+        dispatch(setOpenBeerIdx(-1));
+        dispatch(setBeerSearchResults([]))
+        onClose()
     }
 
-    const {letter} = beerLetters[openBeerIdx]
+    // Open the Modal if we have an openBeerIndex
+    useEffect(() => {
+        if (openBeerIdx !== -1) {
+            onOpen()
+        }
+    }, [openBeerIdx, onOpen])
+
+    const letter = openBeerIdx !== -1 ? beerLetters[openBeerIdx]['letter'] : ''
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} size='xl'>
+        <Modal isOpen={isOpen} onClose={clearDataOnClose} size='xl'>
             <ModalOverlay />
             <ModalContent margin='auto'>
                 <ModalHeader margin='auto'>Pick Your Beer For "{letter.toUpperCase()}"</ModalHeader>
@@ -163,11 +168,11 @@ export const BeerModal = ({isOpen, onClose}) => {
                 <ModalBody>
                     <BeerModalContent
                         openBeerIdx={openBeerIdx}
-                        onClose={onClose}
+                        onClose={clearDataOnClose}
                     />
                 </ModalBody>
                 <ModalFooter>
-                <Button onClick={onClose}>
+                <Button onClick={clearDataOnClose}>
                     Cancel
                 </Button>
                 </ModalFooter>
