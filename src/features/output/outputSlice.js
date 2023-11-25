@@ -1,19 +1,29 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import beers from './data/beers2.json';
+import beerRules from './data/beer_rules.json';
 import { sample } from 'lodash-es';
 import Fuse from 'fuse.js';
 import { UploadManager } from '@bytescale/sdk';
 import download from 'downloadjs';
 
-// TODO temp preprocessing of beers file. Once beer json is standardized this should go away
-const formattedBeers = Object.values(beers).map(beer => {
-    return {
-        'beer_name': beer['beer_name'],
-        'brewer_name': beer['brewer_name'],
-        'beer_type': beer['beer_type'],
-        'beer_label_file': beer['beer_label_file_small'],
+const formattedBeers = ((beers) => {
+    const breweryWordsToTrim = new RegExp(beerRules['brewery']['wordsToTrim'].join('|'), 'gi')
+    const multispaceRegex = new RegExp(' +', 'gi')
+
+    const formatBreweryName = (breweryName) => {
+        return breweryName.replace(breweryWordsToTrim, '').trim().replace(multispaceRegex, ' ')
     }
-})
+
+    return Object.values(beers).map(beer => {
+        console.log("\"" + beer['brewer_name'] + "\" -> \"" + formatBreweryName(beer['brewer_name']) + "\"")
+        return {
+            'beer_name': beer['beer_name'],
+            'brewer_name': formatBreweryName(beer['brewer_name']),
+            'beer_type': beer['beer_type'],
+            'beer_label_file': beer['beer_label_file_small'],
+        }
+    })
+})(beers)
 
 const fuse = new Fuse(formattedBeers, {
     keys: [

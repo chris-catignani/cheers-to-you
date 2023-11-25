@@ -1,0 +1,16 @@
+{
+    "brewery": {
+        "wordsToTrim": [
+            "Brewing Company",
+            "Brewing Co.",
+            "Beer Co.",
+            "Brew Co.",
+            "Breweries",
+            "Brewery",
+            "Brewing",
+            "Craft Brews",
+            "Craft Brew",
+            "Brews"
+        ]
+    }
+}
