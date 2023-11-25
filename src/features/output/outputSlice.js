@@ -37,30 +37,32 @@ const fuse = new Fuse(formattedBeers, {
 
 const initialState = {
     eventName: sessionStorage.getItem('output.eventName') || '',
+    personsName: sessionStorage.getItem('output.personsName') || '',
     beerLetters: JSON.parse(sessionStorage.getItem('output.beerLetters') || '[]'),
     openedBeerIdx: -1,
     beerSearchResults: [],
-    uploadedImageData: {},
+    uploadedSocialMediaData: {},
     
     downloadGeneratedImageStatus: '',
-    uploadGeneratedImageStatus: '',
+    uploadSocialMediaStatus: '',
 };
 
-export const uploadImage = createAsyncThunk(
-    'output/uploadImage',
-    async (dataUrlPromise) => {
+export const uploadSocialMedia = createAsyncThunk(
+    'output/uploadSocialMedia',
+    async ({dataUrlPromise, personsName, eventName}) => {
         const dataUrl = await dataUrlPromise
-        const image = await fetch(dataUrl)
-        const imageArrayBuffer = await image.arrayBuffer()
 
         const uploadManager = new UploadManager({
             apiKey: "free", // Get API key: https://www.bytescale.com/get-started
         });
     
         const { fileUrl } = await uploadManager.upload({
-            data: imageArrayBuffer,
-            mime: 'image/jpeg',
-            originalFileName: 'example.jpeg',
+            data: JSON.stringify({
+                dataUrl,
+                personsName,
+                eventName,
+            }),
+            originalFileName: 'example.json',
         });
 
         const urlSegments = fileUrl.split('/')
@@ -81,6 +83,7 @@ export const downloadImage = createAsyncThunk(
 
 export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
     dispatch(setEventName(eventName));
+    dispatch(setPersonsName(personsName));
 
     const beerLetters = [];
     for (var i = 0; i < personsName.length; i++) {
@@ -137,6 +140,10 @@ export const outputSlice = createSlice({
             state.eventName = action.payload
             sessionStorage.setItem('output.eventName', action.payload)
         },
+        setPersonsName: (state, action) => {
+            state.personsName = action.payload
+            sessionStorage.setItem('output.personsName', action.payload)
+        },
         setBeerLetterAtIndex: (state, action) => {
             state.beerLetters[action.payload.idx] = {
                 ...state.beerLetters[action.payload.idx],
@@ -155,8 +162,8 @@ export const outputSlice = createSlice({
         setBeerSearchResults: (state, action) => {
             state.beerSearchResults = action.payload;
         },
-        setsUploadedImageData: (state, action) => {
-            state.uploadedImageData = action.payload
+        setUploadedSocialMediaData: (state, action) => {
+            state.uploadedSocialMediaData = action.payload
         },
         setDownloadGeneratedImageStatus: (state, action) => {
             state.downloadGeneratedImageStatus = action.payload
@@ -172,29 +179,30 @@ export const outputSlice = createSlice({
         [downloadImage.rejected]: (state) => {
             state.downloadGeneratedImageStatus = ''
         },
-        [uploadImage.pending]: (state) => {
-            state.uploadGeneratedImageStatus = 'uploading';
-            state.uploadedImageData = {}
+        [uploadSocialMedia.pending]: (state) => {
+            state.uploadSocialMediaStatus = 'uploading';
+            state.uploadedSocialMediaData = {}
         },
-        [uploadImage.fulfilled]: (state, action) => {
-            state.uploadGeneratedImageStatus = ''
-            state.uploadedImageData = action.payload
+        [uploadSocialMedia.fulfilled]: (state, action) => {
+            state.uploadSocialMediaStatus = ''
+            state.uploadedSocialMediaData = action.payload
         },
-        [uploadImage.rejected]: (state) => {
-            state.uploadGeneratedImageStatus = ''
-            state.uploadedImageData = {}
+        [uploadSocialMedia.rejected]: (state) => {
+            state.uploadSocialMediaStatus = ''
+            state.uploadedSocialMediaData = {}
         },
     }
 });
 
-export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData } = outputSlice.actions;
+export const { setEventName, setPersonsName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setUploadedSocialMediaData } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
+export const selectPersonsName = (state) => state.output.personsName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
 export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
 export const selectBeerSearchResults = (state) => state.output.beerSearchResults;
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;
-export const selectUploadGeneratedImageStatus = (state) => state.output.uploadGeneratedImageStatus;
-export const selectUploadedImageData = (state) => state.output.uploadedImageData;
+export const selectUploadSocialMediaStatus = (state) => state.output.uploadSocialMediaStatus;
+export const selectUploadedSocialMediaData = (state) => state.output.uploadedSocialMediaData;
 
 export default outputSlice.reducer;
