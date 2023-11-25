@@ -99,34 +99,28 @@ export const downloadImage = createAsyncThunk(
 export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
     const state = getState()
 
-    console.log(state.output.personsName + ' ' + personsName)
-
     if (state.output.personsName !== personsName) {
-        const beerLetters = [];
-        for (let i = 0; i < personsName.length; i++) {
-            const letter = personsName.charAt(i).toLowerCase();
-            beerLetters.push({
-                letter: letter,
+        const beerLetters = Array.from(personsName).map(letter => {
+            return {
+                letter: letter.toUpperCase(),
                 userGeneratedBeer: {},
                 beer: sample(getDefaultBeersForLetter(letter)),
-            })
-        }
+            }
+        })
         dispatch(setBeerLetters(beerLetters))
         dispatch(setLockedBeerLetterIdxs(new Array(beerLetters.length).fill(false)))
     } else {
-        const beerLetters = [];
-        for (let i = 0; i < personsName.length; i++) {
-            if (state.output.lockedBeerLetterIdxs[i]) {
-                beerLetters.push(state.output.beerLetters[i])
+        const beerLetters = Array.from(personsName).map( (letter, idx) => {
+            if (state.output.lockedBeerLetterIdxs[idx]) {
+                return state.output.beerLetters[idx]
             } else {
-                const letter = personsName.charAt(i).toLowerCase();
-                beerLetters.push({
-                    letter: letter,
+                return {
+                    letter: letter.toUpperCase(),
                     userGeneratedBeer: {},
                     beer: sample(getDefaultBeersForLetter(letter)),
-                })
+                }
             }
-        }
+        })
         dispatch(setBeerLetters(beerLetters))
     }
 
