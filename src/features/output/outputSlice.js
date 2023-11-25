@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import beers from './data/beers2.json';
-import beerRules from './data/beer_rules.json';
+import beers from '../../data/beers2.json';
+import beerRules from '../../data/beer_rules.json';
 import { sample } from 'lodash-es';
 import Fuse from 'fuse.js';
 import { UploadManager } from '@bytescale/sdk';
