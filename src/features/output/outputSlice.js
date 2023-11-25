@@ -17,7 +17,6 @@ const formattedBeers = ((beers) => {
 
     const formatBeerName = (beerName) => {
         return formatString(beerName, beerNameWordsToTrim)
-
     }
 
     const formatString = (aString, wordRegex) => {
@@ -152,7 +151,6 @@ const fuseSearch = (query, {limit = 10, scoreThreshold = 0.5} = {}) => {
     }
 
     const fuseResults = fuse.search(query, {limit})
-    // console.log(fuseResults)
     return fuseResults.reduce((results, result) => {
         if (result['score'] < scoreThreshold) {
             results.push(result['item'])
