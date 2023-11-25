@@ -2,13 +2,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import download from 'downloadjs';
-import { DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
 import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx, setsUploadedImageData, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
-import { FacebookIcon, FacebookShareButton, TwitterShareButton, XIcon } from 'react-share';
+import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
 
 
 export const Output = () => {
@@ -106,18 +106,38 @@ export const ShareModal = () => {
         <Modal isOpen={isOpen} onClose={clearDataOnClose} size='xl'>
             <ModalOverlay />
             <ModalContent margin='auto'>
-            <ModalHeader margin='auto'></ModalHeader>
+            <ModalHeader margin='auto'>Share your design</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-                <FacebookShareButton url={shareUrl}>
-                    <FacebookIcon size={32} round />
-                </FacebookShareButton>
-                <TwitterShareButton
-                    url={shareUrl}
-                    title={eventName}
-                >
-                    <XIcon size={32} round />
-                </TwitterShareButton>
+                <Flex gap='2'>
+                    <FacebookShareButton url={shareUrl}>
+                        <FacebookIcon size={40} round />
+                    </FacebookShareButton>
+                    <TwitterShareButton
+                        url={shareUrl}
+                        title={eventName}
+                    >
+                        <XIcon size={40} round />
+                    </TwitterShareButton>
+                    <WhatsappShareButton
+                        url={shareUrl}
+                        title={eventName}
+                        separator=":: "
+                    >
+                        <WhatsappIcon size={40} round />
+                    </WhatsappShareButton>
+                    <EmailShareButton
+                        url={shareUrl}
+                        subject={eventName}
+                        body="body"
+                    >
+                        <EmailIcon size={40} round />
+                    </EmailShareButton>
+                    <IconButton
+                        isRound={true}
+                        onClick={() => navigator.clipboard.writeText(shareUrl)} 
+                        icon={<CopyIcon />}/>
+                </Flex>
             </ModalBody>
             <ModalFooter>
                 <Button onClick={clearDataOnClose}>
