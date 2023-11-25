@@ -35,7 +35,7 @@ const formattedBeers = ((beers) => {
             'beer_name': formatBeerName(beer['beer_name']),
             'brewer_name': formatBreweryName(beer['brewer_name']),
             'beer_type': beer['beer_type'],
-            'beer_label_file': beer['beer_label_file_small'],
+            'beer_label_file': beer['beer_label_file_big'],
         }
     })
 })(beers)
