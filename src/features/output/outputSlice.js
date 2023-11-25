@@ -38,6 +38,7 @@ const fuse = new Fuse(formattedBeers, {
 const initialState = {
     eventName: sessionStorage.getItem('output.eventName') || '',
     beerLetters: JSON.parse(sessionStorage.getItem('output.beerLetters') || '[]'),
+    lockedBeerLetterIdxs: JSON.parse(sessionStorage.getItem('output.lockedBeerLetterIdxs') || '[]'),
     openedBeerIdx: -1,
     beerSearchResults: [],
     uploadedImageData: {},
@@ -94,6 +95,7 @@ export const generateOutput = (personsName, eventName) => (dispatch, getState) =
     }
 
     dispatch(setBeerLetters(beerLetters))
+    dispatch(setLockedBeerLetterIdx(new Array(beerLetters.length).fill(false)))
 };
 
 export const searchForBeer = (beerSearchQuery) => (dispatch, getState) => {
@@ -149,6 +151,15 @@ export const outputSlice = createSlice({
             state.beerLetters = action.payload
             sessionStorage.setItem('output.beerLetters', JSON.stringify(action.payload))
         },
+        setLockedBeerLetterIdx: (state, action) => {
+            state.lockedBeerLetterIdxs = action.payload
+        },
+        toggleLockedBeerLetterIdx: (state, action) => {
+            const tempLockedBeerLetterIdxs = [...state.lockedBeerLetterIdxs]
+            tempLockedBeerLetterIdxs[action.payload] = !tempLockedBeerLetterIdxs[action.payload]
+            state.lockedBeerLetterIdxs = tempLockedBeerLetterIdxs
+            sessionStorage.setItem('output.lockBeerLetterIdx', JSON.stringify(state.lockedBeerLetterIdxs))
+        },
         setOpenBeerIdx: (state, action) => {
             state.openedBeerIdx = action.payload
         },
@@ -187,10 +198,11 @@ export const outputSlice = createSlice({
     }
 });
 
-export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData } = outputSlice.actions;
+export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setLockedBeerLetterIdx, toggleLockedBeerLetterIdx, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
+export const selectLockedBeerLetterIdxs = (state) => state.output.lockedBeerLetterIdxs;
 export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
 export const selectBeerSearchResults = (state) => state.output.beerSearchResults;
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;
