@@ -1,12 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useRef, useState } from 'react';
 import { toJpeg } from 'html-to-image';
-import download from 'downloadjs';
 import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
-import { searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setDownloadGeneratedImageStatus, setOpenBeerIdx, setsUploadedImageData, uploadImage } from './outputSlice';
+import { downloadImage, searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
 
@@ -33,18 +32,15 @@ export const Output = () => {
     })
 
     const donwloadOutput = async (ref) => {
-        dispatch(setDownloadGeneratedImageStatus('saving'))
         const node = ref.current;
-        const dataUrl = await toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
-        download(dataUrl, 'my-pic.jpg');
-        dispatch(setDownloadGeneratedImageStatus('success'))
+        const dataUrlPromise = toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
+        dispatch(downloadImage(dataUrlPromise))
     }
 
-    // TODO move to action/reducer
     const uploadOutput = async (ref) => {
         const node = ref.current;
-        const dataUrl = await toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
-        dispatch(uploadImage(dataUrl))
+        const dataUrlPromise = toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
+        dispatch(uploadImage(dataUrlPromise))
     }
 
     if (!letters || letters.length === 0) {
@@ -75,7 +71,7 @@ export const Output = () => {
                     onClick={() => uploadOutput(generatedPicRef)} 
                     icon={<ExternalLinkIcon />}/>
                 <IconButton
-                    isLoading={downloadGeneratedImageStatus === 'saving'}
+                    isLoading={downloadGeneratedImageStatus === 'downloading'}
                     onClick={() => donwloadOutput(generatedPicRef)}
                     icon={<DownloadIcon />} />
             </ButtonGroup>

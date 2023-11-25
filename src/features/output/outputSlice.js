@@ -3,6 +3,7 @@ import beers from './data/beers2.json';
 import { sample } from 'lodash-es';
 import Fuse from 'fuse.js';
 import { UploadManager } from '@bytescale/sdk';
+import download from 'downloadjs';
 
 // TODO temp preprocessing of beers file. Once beer json is standardized this should go away
 const formattedBeers = Object.values(beers).map(beer => {
@@ -37,7 +38,8 @@ const initialState = {
 
 export const uploadImage = createAsyncThunk(
     'output/uploadImage',
-    async (dataUrl) => {
+    async (dataUrlPromise) => {
+        const dataUrl = await dataUrlPromise
         const image = await fetch(dataUrl)
         const imageArrayBuffer = await image.arrayBuffer()
 
@@ -56,6 +58,14 @@ export const uploadImage = createAsyncThunk(
             appId: urlSegments[3],
             fileId: urlSegments[6].slice(0, -5)
         }
+    }
+)
+
+export const downloadImage = createAsyncThunk(
+    'output/downloadImage',
+    async (dataUrlPromise) => {
+        const dataUrl = await dataUrlPromise
+        download(dataUrl, 'my-pic.jpg');
     }
 )
 
@@ -93,6 +103,15 @@ export const outputSlice = createSlice({
         },
     },
     extraReducers: {
+        [downloadImage.pending]: (state) => {
+            state.downloadGeneratedImageStatus = 'downloading';
+        },
+        [downloadImage.fulfilled]: (state, action) => {
+            state.downloadGeneratedImageStatus = ''
+        },
+        [downloadImage.rejected]: (state) => {
+            state.downloadGeneratedImageStatus = ''
+        },
         [uploadImage.pending]: (state) => {
             state.uploadGeneratedImageStatus = 'uploading';
             state.uploadedImageData = {}
@@ -108,7 +127,7 @@ export const outputSlice = createSlice({
     }
 });
 
-export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData, setDownloadGeneratedImageStatus } = outputSlice.actions;
+export const { setEventName, setBeerLetterAtIndex, setBeerLetters, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
