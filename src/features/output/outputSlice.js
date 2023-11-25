@@ -8,7 +8,7 @@ import download from 'downloadjs';
 
 const formattedBeers = ((beers) => {
     const breweryWordsToTrim = new RegExp(beerRules['brewery']['wordsToTrim'].join('|'), 'gi')
-    const multispaceRegex = new RegExp(' +', 'gi')
+    const multispaceRegex = new RegExp(' {2,}', 'gi')
 
     const formatBreweryName = (breweryName) => {
         return breweryName.replace(breweryWordsToTrim, '').trim().replace(multispaceRegex, ' ')
