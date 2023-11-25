@@ -1,10 +1,20 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import beers from './data/beers.json';
+import beers from './data/beers2.json';
 import { sample } from 'lodash-es';
 import Fuse from 'fuse.js';
 import { UploadManager } from '@bytescale/sdk';
 
-const fuse = new Fuse(beers, {
+// TODO temp preprocessing of beers file. Once beer json is standardized this should go away
+const formattedBeers = Object.values(beers).map(beer => {
+    return {
+        'beer_name': beer['beer_name'],
+        'brewer_name': beer['brewer_name'],
+        'beer_type': beer['beer_type'],
+        'beer_label_file': beer['beer_label_file_small'],
+    }
+})
+
+const fuse = new Fuse(formattedBeers, {
     keys: [
         'beer_name',
         'brewer_name',
