@@ -69,6 +69,56 @@ export const downloadImage = createAsyncThunk(
     }
 )
 
+export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
+    dispatch(setEventName(eventName));
+
+    const beerLetters = [];
+    for (var i = 0; i < personsName.length; i++) {
+        const letter = personsName.charAt(i).toLowerCase();
+        
+        beerLetters.push({
+            letter: letter,
+            userGeneratedBeer: {},
+            beer: sample(getDefaultBeersForLetter(letter)),
+        })
+    }
+
+    dispatch(setBeerLetters(beerLetters))
+};
+
+export const searchForBeer = (beerSearchQuery) => (dispatch, getState) => {
+    const beerSearchResults = fuseSearch(beerSearchQuery)
+    dispatch(setBeerSearchResults(beerSearchResults, {scoreThreshold: 0.40}))
+}
+
+const getDefaultBeersForLetter = (letter) => {
+    const fuseSearchQuery = {
+        $or: [
+            { beer_name: `^${letter}` },
+            { beer_name: `" ${letter}"` },
+            { brewer_name: `^${letter}` },
+            { brewer_name: `" ${letter}"` },
+        ]
+    }
+
+    return fuseSearch(fuseSearchQuery, {scoreThreshold: 0.5})
+}
+
+const fuseSearch = (query, {limit = 10, scoreThreshold = 0.5} = {}) => {
+    if (!query) {
+        return []
+    }
+
+    const fuseResults = fuse.search(query, {limit})
+    // console.log(fuseResults)
+    return fuseResults.reduce((results, result) => {
+        if (result['score'] < scoreThreshold) {
+            results.push(result['item'])
+        }
+        return results
+    }, [])
+}
+
 export const outputSlice = createSlice({
     name: 'output',
     initialState,
@@ -136,55 +186,5 @@ export const selectBeerSearchResults = (state) => state.output.beerSearchResults
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;
 export const selectUploadGeneratedImageStatus = (state) => state.output.uploadGeneratedImageStatus;
 export const selectUploadedImageData = (state) => state.output.uploadedImageData;
-
-export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
-    dispatch(setEventName(eventName));
-
-    const beerLetters = [];
-    for (var i = 0; i < personsName.length; i++) {
-        const letter = personsName.charAt(i).toLowerCase();
-        
-        beerLetters.push({
-            letter: letter,
-            userGeneratedBeer: {},
-            beer: sample(getDefaultBeersForLetter(letter)),
-        })
-    }
-
-    dispatch(setBeerLetters(beerLetters))
-};
-
-export const searchForBeer = (beerSearchQuery) => (dispatch, getState) => {
-    const beerSearchResults = fuseSearch(beerSearchQuery)
-    dispatch(setBeerSearchResults(beerSearchResults, {scoreThreshold: 0.40}))
-}
-
-const getDefaultBeersForLetter = (letter) => {
-    const fuseSearchQuery = {
-        $or: [
-            { beer_name: `^${letter}` },
-            { beer_name: `" ${letter}"` },
-            { brewer_name: `^${letter}` },
-            { brewer_name: `" ${letter}"` },
-        ]
-    }
-
-    return fuseSearch(fuseSearchQuery, {scoreThreshold: 0.5})
-}
-
-const fuseSearch = (query, {limit = 10, scoreThreshold = 0.5} = {}) => {
-    if (!query) {
-        return []
-    }
-
-    const fuseResults = fuse.search(query, {limit})
-    // console.log(fuseResults)
-    return fuseResults.reduce((results, result) => {
-        if (result['score'] < scoreThreshold) {
-            results.push(result['item'])
-        }
-        return results
-    }, [])
-}
 
 export default outputSlice.reducer;
