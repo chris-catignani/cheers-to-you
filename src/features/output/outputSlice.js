@@ -12,11 +12,20 @@ const formattedBeers = ((beers) => {
     const multispaceRegex = new RegExp(' {2,}', 'g')
 
     const formatBreweryName = (breweryName) => {
-        return breweryName.replace(breweryWordsToTrim, '').trim().replace(multispaceRegex, ' ')
+        return formatString(breweryName, breweryWordsToTrim)
     }
 
     const formatBeerName = (beerName) => {
-        return beerName.replace(beerNameWordsToTrim, '').trim().replace(multispaceRegex, ' ')
+        return formatString(beerName, beerNameWordsToTrim)
+
+    }
+
+    const formatString = (aString, wordRegex) => {
+        // remove words
+        const trimmedString = aString.replace(wordRegex, '').trim().replace(multispaceRegex, ' ')
+        
+        // make title case
+        return trimmedString.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
     }
 
     return Object.values(beers).map(beer => {
