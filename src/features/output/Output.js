@@ -5,7 +5,7 @@ import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
-import { downloadImage, searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectPersonsName, selectUploadSocialMediaStatus, selectUploadedSocialMediaData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setUploadedSocialMediaData, uploadSocialMedia } from './outputSlice';
+import { downloadImage, searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
 
@@ -14,10 +14,9 @@ export const Output = () => {
     const dispatch = useDispatch();
 
     const eventName = useSelector(selectEventName);
-    const personsName = useSelector(selectPersonsName)
     const beerLetters = useSelector(selectBeerLetters);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
-    const uploadSocialMediaStatus = useSelector(selectUploadSocialMediaStatus)
+    const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
     const generatedPicRef = useRef(null)
     const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
@@ -40,7 +39,7 @@ export const Output = () => {
     const uploadOutput = async (ref) => {
         const node = ref.current;
         const dataUrlPromise = toJpeg(node, { backgroundColor: 'white', cacheBust: true, width: node.scrollWidth, height: node.scrollHeight })
-        dispatch(uploadSocialMedia({dataUrlPromise, eventName, personsName}))
+        dispatch(uploadImage(dataUrlPromise))
     }
 
     if (!letters || letters.length === 0) {
@@ -60,7 +59,7 @@ export const Output = () => {
             <ShareModal />
             <ButtonGroup float={'right'}>
                 <IconButton
-                    isLoading={uploadSocialMediaStatus === 'uploading'}
+                    isLoading={uploadGeneratedImageStatus === 'uploading'}
                     onClick={() => uploadOutput(generatedPicRef)} 
                     icon={<ExternalLinkIcon />}/>
                 <IconButton
@@ -77,17 +76,17 @@ export const ShareModal = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     const eventName = useSelector(selectEventName);
-    const uploadedSocialMediaData = useSelector(selectUploadedSocialMediaData)
-    const shareUrl = 'https://chris-catignani.github.io/cheers-to-you/#/shared/' + uploadedSocialMediaData['appId'] + '/' + uploadedSocialMediaData['fileId']
+    const uploadedImageData = useSelector(selectUploadedImageData)
+    const shareUrl = 'https://chris-catignani.github.io/cheers-to-you/#/shared/' + uploadedImageData['appId'] + '/' + uploadedImageData['fileId']
 
     // Open the Modal if we have uploaded the image data
     useEffect(() => {
-        if (Object.keys(uploadedSocialMediaData).length === 0) {return}
+        if (Object.keys(uploadedImageData).length === 0) {return}
         onOpen()
-    }, [uploadedSocialMediaData, onOpen])
+    }, [uploadedImageData, onOpen])
 
     const clearDataOnClose = () => {
-        dispatch(setUploadedSocialMediaData({}))
+        dispatch(setsUploadedImageData({}))
         onClose()
     }
     
