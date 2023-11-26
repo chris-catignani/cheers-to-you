@@ -5,7 +5,7 @@ import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
-import { wrapIndex } from '../../utils/utils'
+import { isAtoZ, wrapIndex } from '../../utils/utils'
 import { downloadImage, generateOutput, searchForBeer, selectBeerLetters, selectBeerOptionsAtIdx, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectLockedBeerLetterIdxs, selectOpenBeerIdx, selectPersonsName, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, toggleLockedBeerLetterIdx, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Container, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
@@ -31,7 +31,7 @@ export const Output = () => {
         let maxAnimateRunCount = 0
         let maxAnimateRunCountPerIdx = []
         for(let i = 0; i < personsName.length; i++) {
-            if (lockedBeerIdxs[i]) {
+            if (lockedBeerIdxs[i] || !isAtoZ(personsName[i])) {
                 maxAnimateRunCountPerIdx.push(-1)
             } else {
                 maxAnimateRunCount += 4
@@ -128,22 +128,26 @@ export const BeerLetters = ({animateRunCount, maxAnimateRunCountPerIdx}) => {
     const beerOptionsAtIdx = useSelector(selectBeerOptionsAtIdx);
     const lockedBeerIdxs = useSelector(selectLockedBeerLetterIdxs);
 
-    const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
+    const letters = beerLetters.map( ({letter, beer, userGeneratedBeer, isSpecialCharacter}, idx) => {
         let beerToShow = beer || userGeneratedBeer
-        if(animateRunCount !== -1 && animateRunCount < maxAnimateRunCountPerIdx[idx]) {
+        if(animateRunCount !== -1 && animateRunCount < maxAnimateRunCountPerIdx[idx] && !isSpecialCharacter) {
             const animateIdx = wrapIndex(0, beerOptionsAtIdx[idx].length, animateRunCount)
             beerToShow = beerOptionsAtIdx[idx][animateIdx]
         }
         return (
             <Flex flexDirection='column' textAlign='center' key={`beer-letter-${idx}`}>
                 <Heading as='h5' size='sm' mb='5' textTransform='uppercase'>{letter}</Heading>
-                <Letter 
-                    beer={beerToShow}
-                    onClick={() => dispatch(setOpenBeerIdx(idx)) } >
-                </Letter>
-                <Button mt='auto' onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
-                    {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
-                </Button>
+                {!isSpecialCharacter &&
+                    <>
+                        <Letter 
+                            beer={beerToShow}
+                            onClick={() => dispatch(setOpenBeerIdx(idx)) } >
+                        </Letter>
+                        <Button mt='auto' onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
+                            {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
+                        </Button>
+                    </>
+                }
             </Flex>
         )
     })

@@ -5,6 +5,7 @@ import { sample, shuffle } from 'lodash-es';
 import Fuse from 'fuse.js';
 import { UploadManager } from '@bytescale/sdk';
 import download from 'downloadjs';
+import { isAtoZ } from '../../utils/utils';
 
 const formattedBeers = ((beers) => {
     const breweryWordsToTrim = new RegExp(beerRules['brewery']['wordsToTrim'].join('|'), 'gi')
@@ -115,18 +116,32 @@ export const generateOutput = (personsName, eventName) => (dispatch, getState) =
 
     if (state.output.personsName !== personsName) {
         Array.from(personsName).forEach((letter, idx) => {
-            const beerOptions = getDefaultBeersForLetter(letter)
-            beerOptionsAtIdx.push(beerOptions)
-            beerLetters.push({
-                letter: letter.toUpperCase(),
-                userGeneratedBeer: {},
-                beer: sample(beerOptions),
-            })
+            if(!isAtoZ(letter)) {
+                beerLetters.push({
+                    letter, 
+                    isSpecialCharacter: true,
+                })
+                beerOptionsAtIdx.push([])
+            } else {
+                const beerOptions = getDefaultBeersForLetter(letter)
+                beerOptionsAtIdx.push(beerOptions)
+                beerLetters.push({
+                    letter: letter.toUpperCase(),
+                    userGeneratedBeer: {},
+                    beer: sample(beerOptions),
+                })
+            }
         })
         dispatch(setLockedBeerLetterIdxs(new Array(beerLetters.length).fill(false)))
     } else {
         Array.from(personsName).forEach( (letter, idx) => {
-            if (state.output.lockedBeerLetterIdxs[idx]) {
+            if(!isAtoZ(letter)) {
+                beerLetters.push({
+                    letter, 
+                    isSpecialCharacter: true,
+                })
+                beerOptionsAtIdx.push([])
+            } else if (state.output.lockedBeerLetterIdxs[idx]) {
                 beerLetters.push(state.output.beerLetters[idx])
                 beerOptionsAtIdx.push(state.output.beerOptionsAtIdx[idx])
             } else {
