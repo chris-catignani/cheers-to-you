@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import beers from '../../data/beers2.json';
 import beerRules from '../../data/beer_rules.json';
-import { sample } from 'lodash-es';
+import { sample, shuffle } from 'lodash-es';
 import Fuse from 'fuse.js';
 import { UploadManager } from '@bytescale/sdk';
 import download from 'downloadjs';
@@ -162,7 +162,7 @@ const getDefaultBeersForLetter = (letter) => {
         ]
     }
 
-    return fuseSearch(fuseSearchQuery, {scoreThreshold: 0.5})
+    return shuffle(fuseSearch(fuseSearchQuery, {scoreThreshold: 0.5}))
 }
 
 const fuseSearch = (query, {limit = 10, scoreThreshold = 0.5} = {}) => {
