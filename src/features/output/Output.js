@@ -65,7 +65,9 @@ export const Output = () => {
             <UserInput
                 personsName={personsName}
                 eventName={eventName}
+                isGenerating={page !== -1}
                 onClick={() => {
+                    setPage(0)
                     let curRunCount = 0
                     const intervalId = setInterval(() => {
                         curRunCount += 1
@@ -102,7 +104,7 @@ export const Output = () => {
     )
 }
 
-export const UserInput = ({personsName, eventName, onClick}) => {
+export const UserInput = ({personsName, eventName, isGenerating, onClick}) => {
     const dispatch = useDispatch()
     const [tempPersonsName, setTempPersonsName] = useState(personsName)
     const [tempEventName, setTempEventName] = useState(eventName)
@@ -121,6 +123,7 @@ export const UserInput = ({personsName, eventName, onClick}) => {
             />
             <Button
                 width='full'
+                isLoading={isGenerating}
                 onClick={() => {
                     dispatch(generateOutput(tempPersonsName, tempEventName))
                     onClick()
