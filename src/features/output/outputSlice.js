@@ -54,6 +54,7 @@ const initialState = {
     personsName: sessionStorage.getItem('output.personsName') || '',
     beerLetters: JSON.parse(sessionStorage.getItem('output.beerLetters') || '[]'),
     lockedBeerLetterIdxs: JSON.parse(sessionStorage.getItem('output.lockedBeerLetterIdxs') || '[]'),
+    beerOptionsAtIdx: [],
     openedBeerIdx: -1,
     beerSearchResults: [],
     uploadedImageData: {},
@@ -98,31 +99,39 @@ export const downloadImage = createAsyncThunk(
 export const generateOutput = (personsName, eventName) => (dispatch, getState) => {
     const state = getState()
 
+    const beerLetters = []
+    const beerOptionsAtIdx = []
+
     if (state.output.personsName !== personsName) {
-        const beerLetters = Array.from(personsName).map(letter => {
-            return {
+        Array.from(personsName).forEach((letter, idx) => {
+            const beerOptions = getDefaultBeersForLetter(letter)
+            beerOptionsAtIdx.push(beerOptions)
+            beerLetters.push({
                 letter: letter.toUpperCase(),
                 userGeneratedBeer: {},
-                beer: sample(getDefaultBeersForLetter(letter)),
-            }
+                beer: sample(beerOptions),
+            })
         })
-        dispatch(setBeerLetters(beerLetters))
         dispatch(setLockedBeerLetterIdxs(new Array(beerLetters.length).fill(false)))
     } else {
-        const beerLetters = Array.from(personsName).map( (letter, idx) => {
+        Array.from(personsName).forEach( (letter, idx) => {
             if (state.output.lockedBeerLetterIdxs[idx]) {
-                return state.output.beerLetters[idx]
+                beerLetters.push(state.output.beerLetters[idx])
+                beerOptionsAtIdx.push(state.output.beerOptionsAtIdx[idx])
             } else {
-                return {
+                const beerOptions = getDefaultBeersForLetter(letter)
+                beerOptionsAtIdx.push(beerOptions)
+                beerLetters.push({
                     letter: letter.toUpperCase(),
                     userGeneratedBeer: {},
-                    beer: sample(getDefaultBeersForLetter(letter)),
-                }
+                    beer: sample(beerOptions),
+                })
             }
         })
-        dispatch(setBeerLetters(beerLetters))
     }
 
+    dispatch(setBeerLetters(beerLetters))
+    dispatch(setBeerOptionsAtIdx(beerOptionsAtIdx))
     dispatch(setEventName(eventName));
     dispatch(setPersonsName(personsName));
 };
@@ -193,6 +202,9 @@ export const outputSlice = createSlice({
             state.lockedBeerLetterIdxs = tempLockedBeerLetterIdxs
             sessionStorage.setItem('output.lockedBeerLetterIdxs', JSON.stringify(state.lockedBeerLetterIdxs))
         },
+        setBeerOptionsAtIdx: (state, action) => {
+            state.beerOptionsAtIdx = action.payload
+        },
         setOpenBeerIdx: (state, action) => {
             state.openedBeerIdx = action.payload
         },
@@ -231,12 +243,13 @@ export const outputSlice = createSlice({
     }
 });
 
-export const { setEventName, setPersonsName, setBeerLetterAtIndex, setBeerLetters, setLockedBeerLetterIdxs, toggleLockedBeerLetterIdx, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData } = outputSlice.actions;
+export const { setEventName, setPersonsName, setBeerLetterAtIndex, setBeerLetters, setLockedBeerLetterIdxs, toggleLockedBeerLetterIdx, setBeerOptionsAtIdx, setOpenBeerIdx, setBeerSearchResults, setsUploadedImageData } = outputSlice.actions;
 
 export const selectEventName = (state) => state.output.eventName;
 export const selectPersonsName = (state) => state.output.personsName;
 export const selectBeerLetters = (state) => state.output.beerLetters;
 export const selectLockedBeerLetterIdxs = (state) => state.output.lockedBeerLetterIdxs;
+export const selectBeerOptionsAtIdx = (state) => state.output.beerOptionsAtIdx;
 export const selectOpenBeerIdx = (state) => state.output.openedBeerIdx;
 export const selectBeerSearchResults = (state) => state.output.beerSearchResults;
 export const selectDownloadGeneratedImageStatus = (state) => state.output.downloadGeneratedImageStatus;

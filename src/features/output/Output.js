@@ -5,29 +5,47 @@ import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { BeerUGCInput } from './components/BeerUGCInput';
 import { AddYourOwn } from './components/AddYourOwn';
 import { Letter } from './components/Letter';
-import { downloadImage, searchForBeer, selectBeerLetters, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectLockedBeerLetterIdxs, selectOpenBeerIdx, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, toggleLockedBeerLetterIdx, uploadImage } from './outputSlice';
-import { Box, Button, ButtonGroup, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
+import { wrapIndex } from '../../utils/utils'
+import { downloadImage, generateOutput, searchForBeer, selectBeerLetters, selectBeerOptionsAtIdx, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectLockedBeerLetterIdxs, selectOpenBeerIdx, selectPersonsName, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, toggleLockedBeerLetterIdx, uploadImage } from './outputSlice';
+import { Box, Button, ButtonGroup, Container, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const CYCLE_LENGTH = 8
+const SLOT_MS = 250 // in ms
 
 
 export const Output = () => {
     const dispatch = useDispatch();
 
     const eventName = useSelector(selectEventName);
+    const personsName = useSelector(selectPersonsName);
     const beerLetters = useSelector(selectBeerLetters);
     const lockedBeerIdxs = useSelector(selectLockedBeerLetterIdxs);
+    const beerOptionsAtIdx = useSelector(selectBeerOptionsAtIdx);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
     const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
+    const [page, setPage] = useState(-1)
+
     const generatedPicRef = useRef(null)
     const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
+        let beerToShow = beer || userGeneratedBeer
+        if(page !== -1 && !lockedBeerIdxs[idx]) {
+            const animateIdx = wrapIndex(0, beerOptionsAtIdx[idx].length, page)
+            beerToShow = beerOptionsAtIdx[idx][animateIdx]
+        }
         return (
             <Flex flexDirection='column' key={`beer-letter-${idx}`}>
-                <Letter 
-                    letter={letter}
-                    beer={beer || userGeneratedBeer}
-                    onClick={() => dispatch(setOpenBeerIdx(idx)) } >
-                </Letter>
+                <AnimatePresence initial={false}>
+                    <motion.div>
+                        <Letter 
+                            letter={letter}
+                            beer={beerToShow}
+                            onClick={() => dispatch(setOpenBeerIdx(idx)) } >
+                        </Letter>
+                    </motion.div>
+                </AnimatePresence>
                 <Button onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
                     {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
                 </Button>
@@ -47,12 +65,25 @@ export const Output = () => {
         dispatch(uploadImage(dataUrlPromise))
     }
 
-    if (!letters || letters.length === 0) {
-        return <></>
-    }
-
     return (
-        <Box m='10'>
+        <Box>
+            <UserInput
+                personsName={personsName}
+                eventName={eventName}
+                onClick={() => {
+                    let curRunCount = 0
+                    const intervalId = setInterval(() => {
+                        curRunCount += 1
+                        if(curRunCount >= CYCLE_LENGTH) {
+                            clearInterval(intervalId)
+                            setPage(-1)
+                            return
+                        }
+                        setPage((page) => page + 1)
+                    }, SLOT_MS);
+                }}
+            />
+            {/* TODO content below only if output has been produced */}
             {/* Outer Flex enabling the header and content to handle overflow together without repositioning */}
             <Flex ref={generatedPicRef} overflowX='auto' flexDirection='column' flexWrap='wrap'>
                 <Heading as='h3' size='lg' textAlign='center'>{eventName}</Heading>
@@ -73,6 +104,35 @@ export const Output = () => {
                     icon={<DownloadIcon />} />
             </ButtonGroup>
         </Box>
+    )
+}
+
+export const UserInput = ({personsName, eventName, onClick}) => {
+    const dispatch = useDispatch()
+    const [tempPersonsName, setTempPersonsName] = useState(personsName)
+    const [tempEventName, setTempEventName] = useState(eventName)
+
+    return (
+        <Container maxW='md'>
+            <Input
+                placeholder='Persons Name'
+                value={tempPersonsName}
+                onChange={e => setTempPersonsName(e.target.value)}
+            />
+            <Input
+                placeholder='Event Name'
+                value={tempEventName}
+                onChange={e => setTempEventName(e.target.value)}
+            />
+            <Button
+                width='full'
+                onClick={() => {
+                    dispatch(generateOutput(tempPersonsName, tempEventName))
+                    onClick()
+                }}>
+                Generate
+            </Button>
+        </Container>
     )
 }
 
