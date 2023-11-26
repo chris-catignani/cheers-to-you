@@ -15,8 +15,8 @@ const formattedBeers = ((beers) => {
         return formatString(breweryName, breweryWordsToTrim)
     }
 
-    const formatBeerName = (beerName) => {
-        return formatString(beerName, beerNameWordsToTrim)
+    const formatBeerName = (beerName, breweryName) => {
+        return formatString(beerName, beerNameWordsToTrim).replace(new RegExp(`^${breweryName} `,'i'), '')
     }
 
     const formatString = (aString, wordRegex) => {
@@ -28,11 +28,13 @@ const formattedBeers = ((beers) => {
     }
 
     return Object.values(beers).map(beer => {
-        console.log("formatted brewery: \"" + beer['brewer_name'] + "\" -> \"" + formatBreweryName(beer['brewer_name']) + "\"")
-        console.log("formatted beer: \"" + beer['beer_name'] + "\" -> \"" + formatBeerName(beer['beer_name']) + "\"")
+        const breweryName = formatBreweryName(beer['brewer_name'])
+        const beerName = formatBeerName(beer['beer_name'], breweryName)
+        console.log("formatted brewery: \"" + beer['brewer_name'] + "\" -> \"" + breweryName + "\"")
+        console.log("formatted beer: \"" + beer['beer_name'] + "\" -> \"" + beerName + "\"")
         return {
-            'beer_name': formatBeerName(beer['beer_name']),
-            'brewer_name': formatBreweryName(beer['brewer_name']),
+            'beer_name': beerName,
+            'brewer_name': breweryName,
             'beer_type': beer['beer_type'],
             'beer_label_file': beer['beer_label_file_big'],
         }
