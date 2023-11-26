@@ -41,7 +41,7 @@ export const Output = () => {
                     beer={beerToShow}
                     onClick={() => dispatch(setOpenBeerIdx(idx)) } >
                 </Letter>
-                <Button onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
+                <Button mt='auto' onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
                     {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
                 </Button>
             </Flex>
