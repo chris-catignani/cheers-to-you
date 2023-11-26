@@ -8,23 +8,32 @@ import download from 'downloadjs';
 
 const formattedBeers = ((beers) => {
     const breweryWordsToTrim = new RegExp(beerRules['brewery']['wordsToTrim'].join('|'), 'gi')
-    const beerNameWordsToTrim = new RegExp(beerRules['beerName']['wordsToTrim'].join('|'), 'gi')
+    const beerNameRegexes = [
+        {
+            regex: new RegExp(beerRules['beerName']['wordsToTrim'].join('|'), 'gi'),
+            replacement: '',
+        },
+        ...beerRules.beerName.regexes.map(({regex, replacement}) => {
+            return {
+                regex: new RegExp(regex),
+                replacement,
+            }
+        })
+    ]
     const multispaceRegex = new RegExp(' {2,}', 'g')
 
     const formatBreweryName = (breweryName) => {
-        return formatString(breweryName, breweryWordsToTrim)
+        const trimmedString = breweryName.replace(breweryWordsToTrim, '').trim().replace(multispaceRegex, ' ')
+        return trimmedString.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()) // title case
     }
 
     const formatBeerName = (beerName, breweryName) => {
-        return formatString(beerName, beerNameWordsToTrim).replace(new RegExp(`^${breweryName} `,'i'), '')
-    }
-
-    const formatString = (aString, wordRegex) => {
-        // remove words
-        const trimmedString = aString.replace(wordRegex, '').trim().replace(multispaceRegex, ' ')
-        
-        // make title case
-        return trimmedString.toLowerCase().replace(/\b\w/g, s => s.toUpperCase())
+        let formattedBeerName = beerName
+        beerNameRegexes.forEach( ({regex, replacement}) => {
+            formattedBeerName = formattedBeerName.replace(regex, replacement).trim().replace(multispaceRegex, ' ')
+        })
+        formattedBeerName = formattedBeerName.replace(new RegExp(`^${breweryName} `,'i'), '')
+        return formattedBeerName.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()) // title case
     }
 
     return Object.values(beers).map(beer => {
