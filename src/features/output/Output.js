@@ -9,7 +9,6 @@ import { wrapIndex } from '../../utils/utils'
 import { downloadImage, generateOutput, searchForBeer, selectBeerLetters, selectBeerOptionsAtIdx, selectBeerSearchResults, selectDownloadGeneratedImageStatus, selectEventName, selectLockedBeerLetterIdxs, selectOpenBeerIdx, selectPersonsName, selectUploadGeneratedImageStatus, selectUploadedImageData, setBeerLetterAtIndex, setBeerSearchResults, setOpenBeerIdx, setsUploadedImageData, toggleLockedBeerLetterIdx, uploadImage } from './outputSlice';
 import { Box, Button, ButtonGroup, Container, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
-import { AnimatePresence, motion } from 'framer-motion';
 
 const CYCLE_LENGTH = 8
 const SLOT_MS = 250 // in ms
@@ -37,15 +36,11 @@ export const Output = () => {
         }
         return (
             <Flex flexDirection='column' key={`beer-letter-${idx}`}>
-                <AnimatePresence initial={false}>
-                    <motion.div>
-                        <Letter 
-                            letter={letter}
-                            beer={beerToShow}
-                            onClick={() => dispatch(setOpenBeerIdx(idx)) } >
-                        </Letter>
-                    </motion.div>
-                </AnimatePresence>
+                <Letter 
+                    letter={letter}
+                    beer={beerToShow}
+                    onClick={() => dispatch(setOpenBeerIdx(idx)) } >
+                </Letter>
                 <Button onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
                     {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
                 </Button>
