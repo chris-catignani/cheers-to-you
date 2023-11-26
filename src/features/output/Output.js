@@ -10,9 +10,6 @@ import { downloadImage, generateOutput, searchForBeer, selectBeerLetters, select
 import { Box, Button, ButtonGroup, Container, Flex, Heading, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { EmailIcon, EmailShareButton, FacebookIcon, FacebookShareButton, TwitterShareButton, WhatsappIcon, WhatsappShareButton, XIcon } from 'react-share';
 
-const CYCLE_LENGTH = 8
-const SLOT_MS = 250 // in ms
-
 
 export const Output = () => {
     const dispatch = useDispatch();
@@ -25,13 +22,13 @@ export const Output = () => {
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
     const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
-    const [page, setPage] = useState(-1)
+    const [{animateRunCount, maxAnimateRunCountPerIdx}, setAnimationProps] = useState({animateRunCount: -1, maxAnimateRunCountPerIdx: []})
 
     const generatedPicRef = useRef(null)
     const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
         let beerToShow = beer || userGeneratedBeer
-        if(page !== -1 && !lockedBeerIdxs[idx]) {
-            const animateIdx = wrapIndex(0, beerOptionsAtIdx[idx].length, page)
+        if(animateRunCount !== -1 && animateRunCount < maxAnimateRunCountPerIdx[idx]) {
+            const animateIdx = wrapIndex(0, beerOptionsAtIdx[idx].length, animateRunCount)
             beerToShow = beerOptionsAtIdx[idx][animateIdx]
         }
         return (
@@ -47,6 +44,35 @@ export const Output = () => {
             </Flex>
         )
     })
+
+    const generatePressed = () => {
+        let animateRunCount = 0
+        let maxAnimateRunCount = 0
+        let maxAnimateRunCountPerIdx = []
+        for(let i = 0; i < personsName.length; i++) {
+            if (lockedBeerIdxs[i]) {
+                maxAnimateRunCountPerIdx.push(-1)
+            } else {
+                maxAnimateRunCount += 4
+                maxAnimateRunCountPerIdx.push(maxAnimateRunCount)
+            }
+        }
+
+        setAnimationProps({animateRunCount, maxAnimateRunCountPerIdx})
+
+        const intervalId = setInterval(() => {
+            animateRunCount += 1
+            if(animateRunCount > maxAnimateRunCount) {
+                clearInterval(intervalId)
+                setAnimationProps({
+                    animateRunCount: -1,
+                    maxAnimateRunCountPerIdx: []
+                })
+            } else {
+                setAnimationProps({animateRunCount, maxAnimateRunCountPerIdx})
+            }
+        }, 200);
+    }
 
     const donwloadOutput = async (ref) => {
         const node = ref.current;
@@ -65,20 +91,8 @@ export const Output = () => {
             <UserInput
                 personsName={personsName}
                 eventName={eventName}
-                isGenerating={page !== -1}
-                onClick={() => {
-                    setPage(0)
-                    let curRunCount = 0
-                    const intervalId = setInterval(() => {
-                        curRunCount += 1
-                        if(curRunCount >= CYCLE_LENGTH) {
-                            clearInterval(intervalId)
-                            setPage(-1)
-                            return
-                        }
-                        setPage((page) => page + 1)
-                    }, SLOT_MS);
-                }}
+                isGenerating={animateRunCount !== -1}
+                onClick={generatePressed}
             />
             {/* TODO content below only if output has been produced */}
             {/* Outer Flex enabling the header and content to handle overflow together without repositioning */}
