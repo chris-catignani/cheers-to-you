@@ -16,36 +16,17 @@ export const Output = () => {
 
     const eventName = useSelector(selectEventName);
     const personsName = useSelector(selectPersonsName);
-    const beerLetters = useSelector(selectBeerLetters);
     const lockedBeerIdxs = useSelector(selectLockedBeerLetterIdxs);
-    const beerOptionsAtIdx = useSelector(selectBeerOptionsAtIdx);
     const downloadGeneratedImageStatus = useSelector(selectDownloadGeneratedImageStatus);
     const uploadGeneratedImageStatus = useSelector(selectUploadGeneratedImageStatus)
 
     const [{animateRunCount, maxAnimateRunCountPerIdx}, setAnimationProps] = useState({animateRunCount: -1, maxAnimateRunCountPerIdx: []})
 
     const generatedPicRef = useRef(null)
-    const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
-        let beerToShow = beer || userGeneratedBeer
-        if(animateRunCount !== -1 && animateRunCount < maxAnimateRunCountPerIdx[idx]) {
-            const animateIdx = wrapIndex(0, beerOptionsAtIdx[idx].length, animateRunCount)
-            beerToShow = beerOptionsAtIdx[idx][animateIdx]
-        }
-        return (
-            <Flex flexDirection='column' textAlign='center' key={`beer-letter-${idx}`}>
-                <Heading as='h5' size='sm' mb='5' textTransform='uppercase'>{letter}</Heading>
-                <Letter 
-                    beer={beerToShow}
-                    onClick={() => dispatch(setOpenBeerIdx(idx)) } >
-                </Letter>
-                <Button mt='auto' onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
-                    {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
-                </Button>
-            </Flex>
-        )
-    })
 
-    const generatePressed = () => {
+    const generatePressed = (personsName, eventName) => {
+        dispatch(generateOutput(personsName, eventName))
+
         let animateRunCount = 0
         let maxAnimateRunCount = 0
         let maxAnimateRunCountPerIdx = []
@@ -94,13 +75,9 @@ export const Output = () => {
                 isGenerating={animateRunCount !== -1}
                 onClick={generatePressed}
             />
-            {/* TODO content below only if output has been produced */}
-            {/* Outer Flex enabling the header and content to handle overflow together without repositioning */}
             <Flex ref={generatedPicRef} overflowX='auto' flexDirection='column' flexWrap='wrap'>
                 <Heading as='h3' size='lg' textAlign='center'>{eventName}</Heading>
-                <Flex justifyContent='safe center' gap='10' p='5'>
-                    {letters}
-                </Flex>
+                <BeerLetters animateRunCount={animateRunCount} maxAnimateRunCountPerIdx={maxAnimateRunCountPerIdx}/>
             </Flex>
             <BeerModal />
             <ShareModal />
@@ -119,7 +96,6 @@ export const Output = () => {
 }
 
 export const UserInput = ({personsName, eventName, isGenerating, onClick}) => {
-    const dispatch = useDispatch()
     const [tempPersonsName, setTempPersonsName] = useState(personsName)
     const [tempEventName, setTempEventName] = useState(eventName)
 
@@ -138,13 +114,43 @@ export const UserInput = ({personsName, eventName, isGenerating, onClick}) => {
             <Button
                 width='full'
                 isLoading={isGenerating}
-                onClick={() => {
-                    dispatch(generateOutput(tempPersonsName, tempEventName))
-                    onClick()
-                }}>
+                onClick={() => onClick(tempPersonsName, tempEventName)}>
                 Generate
             </Button>
         </Container>
+    )
+}
+
+export const BeerLetters = ({animateRunCount, maxAnimateRunCountPerIdx}) => {
+    const dispatch = useDispatch();
+
+    const beerLetters = useSelector(selectBeerLetters);
+    const beerOptionsAtIdx = useSelector(selectBeerOptionsAtIdx);
+    const lockedBeerIdxs = useSelector(selectLockedBeerLetterIdxs);
+
+    const letters = beerLetters.map( ({letter, beer, userGeneratedBeer}, idx) => {
+        let beerToShow = beer || userGeneratedBeer
+        if(animateRunCount !== -1 && animateRunCount < maxAnimateRunCountPerIdx[idx]) {
+            const animateIdx = wrapIndex(0, beerOptionsAtIdx[idx].length, animateRunCount)
+            beerToShow = beerOptionsAtIdx[idx][animateIdx]
+        }
+        return (
+            <Flex flexDirection='column' textAlign='center' key={`beer-letter-${idx}`}>
+                <Heading as='h5' size='sm' mb='5' textTransform='uppercase'>{letter}</Heading>
+                <Letter 
+                    beer={beerToShow}
+                    onClick={() => dispatch(setOpenBeerIdx(idx)) } >
+                </Letter>
+                <Button mt='auto' onClick={() => dispatch(toggleLockedBeerLetterIdx(idx))}>
+                    {lockedBeerIdxs[idx] ? 'Unlock beer' : 'Lock beer'}
+                </Button>
+            </Flex>
+        )
+    })
+    return (
+        <Flex justifyContent='safe center' gap='10' p='5'>
+            {letters}
+        </Flex>
     )
 }
 
