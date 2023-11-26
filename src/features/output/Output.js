@@ -35,9 +35,9 @@ export const Output = () => {
             beerToShow = beerOptionsAtIdx[idx][animateIdx]
         }
         return (
-            <Flex flexDirection='column' key={`beer-letter-${idx}`}>
+            <Flex flexDirection='column' textAlign='center' key={`beer-letter-${idx}`}>
+                <Heading as='h5' size='sm' mb='5' textTransform='uppercase'>{letter}</Heading>
                 <Letter 
-                    letter={letter}
                     beer={beerToShow}
                     onClick={() => dispatch(setOpenBeerIdx(idx)) } >
                 </Letter>
