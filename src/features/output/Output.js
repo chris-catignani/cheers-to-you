@@ -261,7 +261,7 @@ export const BeerModalContent = ({openBeerIdx, onClose}) => {
     }
 
     return (
-        <Flex justifyContent='safe center' flexWrap='wrap' gap='10'>
+        <Flex justifyContent='safe center' flexWrap='wrap' columnGap='5'>
             <BeerSearch openBeerIdx={openBeerIdx} onClose={onClose}/>
             <AddYourOwn 
                 onClick={() => setIsInBeerUGCMode(true)}
@@ -295,6 +295,7 @@ export const BeerSearch = ({openBeerIdx, onClose}) => {
             <Input
                 placeholder='Search for beer'
                 value={beerSearchQuery}
+                mb='5'
                 onChange={e => {
                     setBeerSearchQuery(e.target.value);
                     dispatch(searchForBeer(e.target.value));
